@@ -1,0 +1,1442 @@
+cameras:
+    camera1:
+        type: perspective
+
+global:
+    # default order for basemap features
+    feature_order: function() { return feature.sort_rank; }
+    feature_order_down_1: function() { return feature.sort_rank - 1; }
+    building_extrude_height: |
+        function () { return feature.height > 16 || $zoom >= 16; }
+
+    # Sign up for a Mapzen API key to enjoy higher rate limits
+    # https://mapzen.com/documentation/overview/#developer-accounts-and-api-keys
+    sdk_api_key: '3eqm2_bfTNGZ85ar20fVyA'     # set this value to your Mapzen API key
+
+
+scene:
+    background:
+        color: [1.000,1.000,1.000]
+
+sources:
+    # mapzen:
+    #     type: MVT
+    #     # url:  https://tile.nextzen.org/tilezen/vector/v1/512/all/{z}/{x}/{y}.mvt
+    #     url: https://xyz.api.here.com/tiles/osmbase/512/all/{z}/{x}/{y}.mvt
+    #     url_params:
+    #         api_key: JJiaZE63TZObzPrmx0TQkw
+    #     tile_size: 512
+    #     max_zoom: 16
+
+    mapzen:
+        type: MVT
+        url: https://tile.nextzen.org/tilezen/vector/v1/512/all/{z}/{x}/{y}.mvt
+        url_params:
+            api_key: global.sdk_api_key
+        rasters: [normals-elevation]
+        tile_size: 512
+        max_zoom: 16
+    normals-elevation:
+        type: Raster
+        url: https://tile.nextzen.org/tilezen/terrain/v1/512/normal/{z}/{x}/{y}.png
+        url_params:
+            api_key: global.sdk_api_key
+        tile_size: 512
+        max_zoom: 15
+
+    xyz-osm:
+        type: MVT
+        url: https://xyz.api.here.com/tiles/osmbase/256/all/{z}/{x}/{y}.mvt
+
+layers:
+    earth:
+        data: { source: mapzen, layer: earth }
+        draw:
+            polygons:
+                style: stripes-earth
+                order: global.feature_order
+                color: [0.000,0.498,0.831]
+
+    landuse:
+        data: { source: mapzen }
+        draw:
+            polygons:
+                order: global.feature_order
+                visible: false
+            lines:
+                order: global.feature_order
+                visible: false
+        # tier1:
+        national_park:
+            filter:
+                all:
+                    - kind: [national_park, battlefield, protected_area]
+                any:
+                    - not: { operator: [ "United States Forest Service" ] }
+                    - protect_class: ['2','3','5']
+            draw:
+                polygons:
+                    style: stripes-green
+                    color: [0.000,0.000,0.000]
+                    visible: true
+                lines:
+                    color: [0.820,0.820,0.820]
+                    width: 1px
+                    visible: true
+            us_national_park:
+                # yosemite national park, death valley national park, grand canyon national park
+                filter:
+                    any:
+                        - operator: [ "United States National Park Service" ]
+                        - protect_class: ['2','3','5']
+                draw:
+                    polygons:
+                        style: stripes-green
+                        color: [0.000,0.000,0.000]
+                        visible: true
+                    lines:
+                        color: [0.820,0.820,0.820]
+                        width: 1px
+                        visible: true
+
+
+        conservation:
+            filter:
+                $zoom: { min: 4 }
+                kind: [protected_area, nature_reserve, national_park]
+                not: { protect_class: ['2','3','5']}
+            draw:
+                polygons:
+                    style: stripes-green
+                    color: [0.000,0.000,0.000]
+                    visible: true
+                lines:
+                    color: [0.820,0.820,0.820]
+                    width: 1px
+                    visible: true
+
+        national_forest_level_6:
+            filter:
+                all:
+                    - kind: forest
+                any:
+                    - protect_class: ['6']
+                    - operator: ['United States Forest Service']
+            draw:
+                polygons:
+                    style: stripes-green
+                    color: [0.000,0.000,0.000]
+                    visible: true
+                lines:
+                    color: [0.820,0.820,0.820]
+                    width: 1px
+                    visible: true
+
+        forest-landcover:
+            filter: { kind: [forest, natural_forest, wood, natural_wood, natural_park], $zoom: { min: 10 }, not: { operator: "United States Forest Service" } }
+            draw:
+                polygons:
+                    style: stripes-green
+                    color: [0.000,0.000,0.000]
+                    visible: true
+                lines:
+                    color: [0.820,0.820,0.820]
+                    width: 1px
+                    visible: true
+
+        parks-and-national-forests-not-national-park:
+            filter:
+                all:
+                    - $zoom: { min: 4 }
+                    - kind: [park, national_park]
+                any:
+                    - not: { operator: [ "United States National Park Service", "United States Forest Service" ] }
+                    - not: { protect_class: ['2','3','5','6'] }
+            # default for national forests and more?
+            draw:
+                polygons:
+                    style: stripes-park
+                    color: [0.000,0.000,0.000]
+                    visible: true
+                lines:
+                    color: [0.820,0.820,0.820]
+                    width: 1px
+                    visible: true
+            national_park:
+                #filter: function() { return feature.name && (feature.name.indexOf('National Park') > -1); }
+                filter:
+                    all:
+                        - kind: national_park
+                        - not: [ protect_class: ['2','3','5','6'], operator: [ "United States National Park Service"] ]
+                draw:
+                    polygons:
+                        style: stripes-park
+                        visible: true
+                    lines:
+                        color: [0.820,0.820,0.820]
+                        width: 1px
+                        visible: true
+
+    water:
+        data: { source: mapzen, layer: water }
+        draw:
+            polygons:
+                style: grid-water
+                order: global.feature_order
+                color: [1.000,1.000,1.000]
+
+        lakes:
+            filter:
+                all:
+                    - kind: [ocean, lake, water, riverbank, reservoir, swimming_pool]
+                any:
+                    # limit show smaller landuse areas to higher zooms
+                    - { $zoom: [1],  area: { min: 10000000000 } }
+                    - { $zoom: [2],  area: { min: 7000000000 } }
+                    # some weird natural earth scale set transition
+                    - { $zoom: [3],  area: { min: 5000000000 } }
+                    - { $zoom: [4],  area: { min: 300000000 } }
+                    - { $zoom: [5],  area: { min: 50000000 } }
+                    - { $zoom: [6],  area: { min: 50000000 } }
+                    - { $zoom: [7],  area: { min: 50000000 } }
+                    - { $zoom: [8],  area: { min: 50000000 } }
+                    - { $zoom: [9],  area: { min: 15000000 } }
+                    - { $zoom: [10], area: { min: 4000000 } }
+                    - { $zoom: [11], area: { min: 1000000 } }
+                    - { $zoom: [12], area: { min: 250000 } }
+                    - { $zoom: [13], area: { min: 150000 } }
+                    - { $zoom: [14], area: { min: 40000 } }
+                    - { $zoom: { min: 15 } }
+            draw:
+                polygons:
+                    color: [1.000,1.000,1.000]
+
+        other-water-areas:
+            filter: { not: { kind: [ocean, lake, water, reservoir] }, $zoom: { min: 11 }, area: { min: 100 } }
+            draw:
+                polygons:
+                    color: [1.000,1.000,1.000]
+
+        water-boundary-ocean:
+            filter: { boundary: true, kind: ocean, $zoom: { min: 1 } }
+            draw:
+                lines:
+                    visible: true
+                    order: global.feature_order
+                    color: [0.780,0.780,0.780]
+                    width: 1px
+                    join: round
+
+        water_boundaries-not-ocean:
+            filter:
+                all:
+                    - boundary: true
+                    - not: { kind: ocean }
+                    - $zoom: { min: 8 }
+                any:
+                    # limit show smaller landuse areas to higher zooms
+                    - { $zoom: [1],  area: { min: 10000000000 } }
+                    - { $zoom: [2],  area: { min: 7000000000 } }
+                    # some weird natural earth scale set transition
+                    - { $zoom: [3],  area: { min: 5000000000 } }
+                    - { $zoom: [4],  area: { min: 300000000 } }
+                    - { $zoom: [5],  area: { min: 50000000 } }
+                    - { $zoom: [6],  area: { min: 50000000 } }
+                    - { $zoom: [7],  area: { min: 50000000 } }
+                    - { $zoom: [8],  area: { min: 50000000 } }
+                    - { $zoom: [9],  area: { min: 15000000 } }
+                    - { $zoom: [10], area: { min: 4000000 } }
+                    - { $zoom: [11], area: { min: 1000000 } }
+                    - { $zoom: [12], area: { min: 250000 } }
+                    - { $zoom: [13], area: { min: 150000 } }
+                    - { $zoom: [14], area: { min: 40000 } }
+                    - { $zoom: { min: 15 } }
+            draw:
+                lines:
+                    visible: true
+                    order: global.feature_order
+                    color: [0.780,0.780,0.780]
+                    width: 1px
+                    join: round
+            # do we still need this?
+            # early:
+            #     filter: { $zoom: { min: 14 } }
+            #     draw:
+            #         lines:
+            #             order: 241
+            swimming-pools-early:
+                filter: { kind: swimming_pool, $zoom: { max: 19 } }
+                draw:
+                    lines:
+                        visible: false
+            riverbank:
+                # river boundaries like the thames in london, la seine in paris
+                filter: { kind: riverbank }
+                draw:
+                    lines:
+                        visible: true
+                        color: [0.740,0.740,0.740]
+                        width: 1px
+
+    roads:
+        data: { source: mapzen, layer: roads }
+        draw:
+            lines:
+                #color: black
+                width: 1px
+                order: global.feature_order
+                # but give them all the same outline
+                outline:
+                    order: 352
+
+        early:
+            filter: { $zoom: { max: 15 } }
+            draw:
+                lines:
+                    outline:
+                        order: global.feature_order
+
+        bridges-tunnels:
+            filter: { any: [is_bridge: true, is_tunnel: true] }
+            draw:
+                lines:
+                    # cap: butt
+                    outline:
+                        # except bridges and tunnels, their outlines should also self-sort
+                        order: global.feature_order
+
+        # default outlines starting at zoom 16
+        default-outline-width:
+            filter: { $zoom: { min: 16 } }
+            draw:
+                lines:
+                    outline:
+                        width: function () { return 3/16 * Math.log($zoom); }
+
+        natural_earth_highways:
+            filter: { $zoom: { min: 5, max: 8 } }
+            draw:
+                lines:
+                    cap: round
+                    join: round
+                    color: [[5,[0.700,0.700,0.700]], [8,[1.000,1.000,1.000]]]
+                    width: [[9, 1px], [14, 2px], [16, 4px], [17, 10m]]
+            major_road:
+                filter: { kind: major_road }
+                draw:
+                    lines:
+                        color: [[5,[0.700,0.700,0.700]], [8,[1.000,1.000,1.000]]]
+                        width: [[5, 0.45px], [6, 0.75px]]
+            minor_road:
+                filter: { kind: minor_road }
+                draw:
+                    lines:
+                        color: [1.000,1.000,1.000]
+                        width: [[12, 1.0px], [14, 1.5px], [15, 3px], [16, 5m]]
+            ferry:
+                filter: { kind: ferry }
+                draw:
+                    lines:
+                        color: [0.900,0.900,0.900]
+                        width: 1px
+
+        highway:
+            filter: { kind: highway, $zoom: { min: 8 } }
+            draw:
+                lines:
+                    color: [[5,[0.700,0.700,0.700]], [8,[1.000,1.000,1.000]]]
+                    width: [[5, 0px], [8, 1px], [14, 2px], [16, 6.5px], [17, 20m]]
+                    outline:
+                        color: [0.700,0.700,0.700]
+                        width: [[5, 0.5px], [8, 0.5px], [12, 1px]]
+
+            link:
+                filter: { is_link: true } # on- and off-ramps, etc
+                draw:
+                    lines:
+                        color: [1.000,1.000,1.000]
+                        width: [[9, 1px], [14, 2.5px], [16, 4px], [18, 9m]]
+                        cap: butt
+                        outline:
+                            color: [0.700,0.700,0.700]
+                            width: [[5, 0.5px], [12, 1px]]
+                early_link:
+                    filter: { $zoom: { max: 15 } }
+                    draw:
+                        lines:
+                            # except bridges and tunnels, their outlines should also self-sort
+                            order: 352
+                tunnel-link:
+                    filter: {is_tunnel: true, $zoom: {min: 13} }
+                    draw:
+                        lines:
+                            color: [1.000,1.000,1.000]
+                            outline:
+                                color: [0.700,0.700,0.700]
+
+            tunnel:
+                filter: {is_tunnel: true, $zoom: {min: 13} }
+                draw:
+                    lines:
+                        color: [1.000,1.000,1.000]
+                        outline:
+                            color: [0.700,0.700,0.700]
+
+            highway_bridge:
+                filter: {is_bridge: true}
+                draw:
+                    lines:
+                        cap: round
+                        outline:
+                            cap: butt
+
+        # major_road:
+        #     filter: { kind: major_road }
+        #     # default style
+        #     draw:
+        #         lines:
+        #             color: [1.000,1.000,1.000]
+        #             width: [[13, 0px], [14, 2px], [16, 2.5px], [19, 8m]]
+        #             outline:
+        #                 color: [0.700,0.700,0.700]
+        #                 width: 1px
+        #     trunk_primary:
+        #         filter: { kind_detail: [trunk, primary] }
+        #         draw:
+        #             lines:
+        #                 color: [1.000,1.000,1.000]
+        #                 width: [[8, 0.6px], [9, 0.75px], [10, 1.5px], [13, 2.5px], [14, 4.5px], [15, 5.5px], [16, 7.0px], [19, 14m]]
+        #                 outline:
+        #                     width: 1px
+        #         early:
+        #             filter: { $zoom: { max: 16 } }
+        #             draw:
+        #                 lines:
+        #                     order: 379
+        #                     outline:
+        #                         order: function() { return feature.sort_rank + 2; }
+        #             primary:
+        #                 filter: { kind: [primary] }
+        #                 draw:
+        #                     lines:
+        #                         outline:
+        #                             order: function() { return feature.sort_rank + 1; }
+        #         routes:
+        #             filter: { ref: true }
+        #             draw:
+        #                 lines:
+        #                     color: [1.000,1.000,1.000]
+        #                     width: [[8, 1.0px], [9, 1.5px], [10, 2.0px], [14, 3.5px], [15, 4.5px], [16, 6.0px], [17, 12m]]
+        #                     outline:
+        #                         color: [0.700,0.700,0.700]
+        #                         width: 1px
+        #             early:
+        #                 filter: { $zoom: { max: 16 } }
+        #                 draw:
+        #                     lines:
+        #                         order: function() { return feature.sort_rank + 2; }
+        #                         outline:
+        #                             order: 353
+        #             national-routes:
+        #                 filter: { network: ["US:US", "US:I"] }
+        #                 draw:
+        #                     lines:
+        #                         color: [1.000,1.000,1.000]
+        #                         width: 1px
+        #             tunnel:
+        #                 filter: {is_tunnel: true, $zoom: {min: 13} }
+        #                 draw:
+        #                     lines:
+        #                         color: [1.000,1.000,1.000]
+        #                         outline:
+        #                             color: [0.700,0.700,0.700]
+        #
+        #     link:
+        #         filter: { is_link: true } # on- and off-ramps, etc
+        #         draw:
+        #             lines:
+        #                 color: [1.000,1.000,1.000]
+        #                 width: [[10, 1px], [14, 3px], [16, 4.5px], [18, 10m]]
+        #                 outline:
+        #                     color: [0.700,0.700,0.700]
+        #                     width: 1px
+        #     tunnel:
+        #         filter: {is_tunnel: true, $zoom: {min: 13} }
+        #         draw:
+        #             lines:
+        #                 color: [1.000,1.000,1.000]
+        #                 outline:
+        #                     color: [0.700,0.700,0.700]
+        #     secondary:
+        #         filter: { kind_detail: secondary }
+        #         draw:
+        #             lines:
+        #                 color: [1.000,1.000,1.000]
+        #                 width: [[11, 1.0px], [12, 1.0px], [13, 2.0px], [14, 3.5px], [15, 4.5px], [16, 7.0px], [19, 16m]]
+        #                 outline:
+        #                     width: 1px
+        #         routes:
+        #             filter: { ref: true, $zoom: { min: 12 } }
+        #             draw:
+        #                 lines:
+        #                     color: [1.000,1.000,1.000]
+        #             tunnel:
+        #                 filter: {is_tunnel: true, $zoom: {min: 13} }
+        #                 draw:
+        #                     lines:
+        #                         color: [1.000,1.000,1.000]
+        #                         outline:
+        #                             color: [0.700,0.700,0.700]
+        #
+        #     tertiary:
+        #         filter: { kind_detail: [tertiary, tertiary_link] }
+        #         draw:
+        #             lines:
+        #                 color: [1.000,1.000,1.000]
+        #                 width: [[11, 0.5px], [12, .75px], [14, 2.5px], [15, 4.0px], [16, 6.5px], [17, 7.5px], [19, 14m]]
+        #                 outline:
+        #                     width: 1px
+        #         early:
+        #             filter: { $zoom: { max: 15 } }
+        #             draw:
+        #                 lines:
+        #                     order: 352
+        #                     outline:
+        #                         order: function() { return feature.sort_rank + 3; }
+        #         routes:
+        #             filter: { ref: true, $zoom: { min: 12 } }
+        #             draw:
+        #                 lines:
+        #                     color:[1.000,1.000,1.000]
+        #             early:
+        #                 filter: { $zoom: { max: 15 } }
+        #                 draw:
+        #                     lines:
+        #                         order: function() { return feature.sort_rank + 3; }
+        #                         outline:
+        #                             order: 353
+        #             tunnel:
+        #                 filter: { is_tunnel: true, $zoom: { min: 13 } }
+        #                 draw:
+        #                     lines:
+        #                         color: [1.000,1.000,1.000]
+        #                         outline:
+        #                             color: [0.700,0.700,0.700]
+        #         link:
+        #             filter: { is_link: true } # on- and off-ramps, etc
+        #             draw:
+        #                 lines:
+        #                     color: [1.000,1.000,1.000]
+        #                     width: [[11, 0.0px], [12, 0.5px], [14, 1.5px], [16, 2.0px], [19, 7m]]
+        #                     outline:
+        #                         color: [0.700,0.700,0.700]
+        #                         width: 1px
+        #
+        # minor_road:
+        #     filter: { kind: minor_road, not: { kind_detail: service } }
+        #     draw:
+        #         lines:
+        #             color: [1.000,1.000,1.000]
+        #             width: [[11, 0.5px], [12, 0.75px], [13, 1.0px], [14, 1.2px], [15, 2.5px], [16, 8m]]
+        #             outline:
+        #                 width: 1px
+        #                 color: [0.700,0.700,0.700]
+        #     early:
+        #         filter: { $zoom: { max: 16 } }
+        #         draw:
+        #             lines:
+        #                 order: 350
+        #                 outline:
+        #                     order: 351
+        #     # Is this junk code?
+        #     round:
+        #         filter: { $zoom: { min: 17 } }
+        #         draw:
+        #             lines:
+        #                 cap: round
+        #                 join: round
+        #
+        #     tunnel:
+        #         filter: { is_tunnel: true, $zoom: { min: 13 } }
+        #         draw:
+        #             lines:
+        #                 cap: butt
+        #                 color: [1.000,1.000,1.000]
+        #                 outline:
+        #                     color: [0.700,0.700,0.700]
+        #     minor_road_bridge:
+        #         filter: { is_bridge: true }
+        #         draw:
+        #             lines:
+        #                 cap: round
+        #                 outline:
+        #                     cap: butt
+        #
+        # service_road:
+        #     filter: { kind: minor_road, kind_detail: service }
+        #     draw:
+        #         lines:
+        #             color: [1.000,1.000,1.000]
+        #             width: [[13, 0.5px], [17, 3px], [18, 4m]]
+        #             outline:
+        #                 color: [0.700,0.700,0.700]
+        #                 width: 1px
+        #
+        # path:
+        #     filter:
+        #         all:
+        #             - kind: [path, portage_way]
+        #         not:
+        #             - kind_detail: [steps, track, pier]
+        #     draw:
+        #         lines:
+        #             color: [1.000,1.000,1.000]
+        #             width: [[14, 0.5px], [15, 1.5px], [17, 3m]]
+        #             outline:
+        #                 color: [0.700,0.700,0.700]
+        #                 width: 1px
+        #     early:
+        #         filter:
+        #             $zoom: { max: 15 }
+        #         draw:
+        #             lines:
+        #                 order: 351
+        #                 outline:
+        #                     order: 350
+        #
+        #     z16-up:
+        #         filter:
+        #             $zoom: { min: 16 }
+        #         draw:
+        #             lines:
+        #                 cap: round
+        #
+        #     pedestrian:
+        #         filter: { kind_detail: pedestrian }
+        #         draw:
+        #             lines:
+        #                 color: [1.000,1.000,1.000]
+        #                 width: [[14, 0.5px], [15, 1.5px], [17, 3m]]
+        #
+        #     footway:
+        #         filter: { kind_detail: footway }
+        #         draw:
+        #             lines:
+        #                 color: [1.000,1.000,1.000]
+        #                 width: [[14, 0.5px], [15, 1.5px], [17, 3m]]
+        #
+        #     bridge:
+        #         filter: { is_bridge: true }
+        #         draw:
+        #             lines:
+        #                 width: [[15, 3.5px], [17, 3m]]
+        #                 cap: round
+        #                 outline:
+        #                     color: [0.700,0.700,0.700]
+        #                     width: 1px
+        #                     cap: butt
+        #
+        # track:
+        #     filter: { kind: path, kind_detail: track }
+        #     draw:
+        #         lines:
+        #             color: [1.000,1.000,1.000]
+        #             width: [[13, 0.5px], [14, 1.0px], [15, 1.0px], [16, 6m]]
+        #             cap: butt
+        #             join: round
+        #             outline:
+        #                 color: [0.700,0.700,0.700]
+        #                 width: 1px
+        #     bridge:
+        #         filter: { is_bridge: true }
+        #         draw:
+        #             lines:
+        #                 width: [[15, 3.5], [17, 3m]]
+        #                 cap: round
+        #                 outline:
+        #                     color: [0.700,0.700,0.700]
+        #                     width: 1px
+        #                     cap: butt
+
+        # steps:
+        #     filter:
+        #         all:
+        #             - kind: path
+        #             - kind_detail: steps
+        #     draw:
+        #         dashed_steps:
+        #             order: global.feature_order
+        #             color: global.path_steps2
+        #             width: [[15, 0.5px], [18, 3px], [19, 1.5m]]
+        #             outline:
+        #                 style: lines
+        #                 color: [[14, global.earth1], [18, global.path_steps1]]
+        #                 width: [[14, 0px], [15, 1px], [18, 1.5m]]
+        #     in_park:
+        #         filter: { landuse_kind: [park, nature_reserve, conservation, golf_course, garden] }
+        #         draw:
+        #             dashed_steps:
+        #                 color: [[14, global.green1_r], [16, global.minor_road3]]
+        #                 outline:
+        #                     color: global.green1_r
+        #     in_university:
+        #         filter: { landuse_kind: university }
+        #         draw:
+        #             dashed_steps:
+        #                 color: [[14, global.university_r], [16, global.minor_road3]]
+        #                 outline:
+        #                     color: global.university_r
+        #     in_hospital:
+        #         filter: { landuse_kind: hospital }
+        #         draw:
+        #             dashed_steps:
+        #                 color: [[14, global.hospital_r],[16, global.minor_road3]]
+        #                 outline:
+        #                     color: global.hospital_r
+
+
+    buildings:
+        data: { source: mapzen, layer: buildings }
+        filter:
+            not: { location: underground }
+        draw:
+            polygons:
+                visible: false
+                order: 329
+                color: [1.000,1.000,1.000]
+            lines:
+                visible: false
+                order: 329
+
+        footprints:
+            filter:
+                any:
+                    - { $zoom: [13], scale_rank: [1,2] }
+                    - { $zoom: [14], scale_rank: [1,2,3] }
+                    - { $zoom: [15], height: { min: 100 } }
+                    - { $zoom: [15], area: { min: 700 } }
+                    - { $zoom: [15], volume: { min: 100000 } }
+                    - { $zoom: [16], area: { min: 100 } }
+                    - { $zoom: [16], volume: { min: 50000 } }
+                    - { $zoom: { min: 17 }, area: true }
+            draw:
+                polygons:
+                    visible: true
+                lines:
+                    visible: true
+                    color: [0.820,0.820,0.820]
+                    width: 1px
+
+            striped-buildings:
+                filter:
+                    all:
+                        - any:
+                            - { $zoom: [16], area: { min: 100 } }
+                            - { $zoom: [16], volume: { min: 50000 } }
+                            - { $zoom: { min: 17 }, area: true }
+                draw:
+                    polygons:
+                        style: stripes-buildings
+                    lines:
+                        color: [0.760,0.760,0.760]
+
+
+            # extrude:
+            #     filter:
+            #         all:
+            #             - any:
+            #                 - { $zoom: [15], height: { min: 250 } }
+            #                 - { $zoom: [15], area: { min: 9000 } }
+            #                 - { $zoom: [15], volume: { min: 150000 } }
+            #                 - { $zoom: [16], height: { min: 100 } }
+            #                 - { $zoom: [16], area: { min: 3500 } }
+            #                 - { $zoom: [16], volume: { min: 50000 } }
+            #                 - { $zoom: [17], area: { min: 500 } }
+            #                 - { $zoom: [17], volume: { min: 15000 } }
+            #                 - { $zoom: { min: 18 } }
+            #             - not:
+            #                 - layer: [-1, -2, -3, -4, -5]
+            #     draw:
+            #         polygons:
+            #             visible: extrude
+            #             order: 438
+            #             color: |
+            #                 function () {
+            #                     var h = feature.height || 20;
+            #                     h = Math.min((h + 75)/ 255, .5); // max brightness: .5
+            #                     h = Math.max(h, .1); // min brightness: .1
+            #                     return [h, h, h];
+            #                 }
+            #             extrude: global.building_extrude_height
+
+styles:
+    tools-tilecoords:
+        shaders:
+            blocks:
+                global: |
+                    // Varying to be added to both vertex and fragment shaders
+                    varying vec2 v_pos;
+                    #ifdef TANGRAM_FRAGMENT_SHADER
+                    vec2 TileCoords() {
+                        return fract(v_pos);
+                    }
+                    #endif
+                position: |
+                    v_pos = modelPosition().xy;
+    tools-grid:
+        mix: tools-tilecoords
+        shaders:
+            blocks:
+                global: |
+                    #ifdef TANGRAM_FRAGMENT_SHADER
+                    bool grid(vec2 st, float res, float press) {
+                        vec2 grid = fract(st * res);
+                        return (grid.x < res * press) || (grid.y < res * press);
+                    }
+                    float TileGrid(float res) {
+                        vec2 st = TileCoords() * 100. * res;
+                        float pct = 0.0;
+                        float press = 0.3 + (1.0 - fract(u_map_position.z)) * 0.1;
+                        if (grid(st, 0.1, press)) { pct += 0.5; }
+                        return pct;
+                    }
+                    float TileGrid() {
+                        return mix(TileGrid(1.), TileGrid(2.), fract(u_map_position.z));
+                    }
+                    #endif
+
+    grid-water:
+        base: polygons
+        mix: [tools-grid]
+        shaders:
+            blocks:
+                filter: |
+                    color.rgb = vec3(1.00,1.00,1.00);
+                    color.rgb = mix(color.rgb, vec3(0.790,0.790,0.790), TileGrid());
+
+    polygons_transparent:
+        base: polygons
+        blend: overlay
+
+    stripes-buildings:
+        base: polygons
+        mix: [polygons-stripes]
+        shaders:
+            defines:
+                STRIPES_SCALE: 50
+                STRIPES_WIDTH: 0.7
+                STRIPES_ALPHA: 1.0
+                STRIPES_ANGLE: 0.7853981625
+            blocks:
+                filter: |
+                    color.rgb = mix(vec3(0.880,0.880,0.880), vec3(0.880,0.880,0.880), gl_FragCoord.x / u_resolution.x);
+
+    stripes-earth:
+        base: polygons
+        mix: [polygons-stripes]
+        shaders:
+            defines:
+                STRIPES_SCALE: 50
+                STRIPES_WIDTH: 0.9
+                STRIPES_ALPHA: 1.0
+                STRIPES_ANGLE: 1.570796325
+            blocks:
+                filter: |
+                    color.rgb = mix(vec3(0.860,0.860,0.860), vec3(0.860,0.860,0.860), gl_FragCoord.x / u_resolution.x);
+
+    stripes-green:
+        base: polygons
+        mix: [polygons-stripes]
+        shaders:
+            defines:
+                STRIPES_SCALE: 50
+                STRIPES_WIDTH: 0.8
+                STRIPES_ALPHA: 1.0
+                STRIPES_ANGLE: 3.14159265
+            blocks:
+                filter: |
+                    color.rgb = mix(vec3(0.860,0.860,0.860), vec3(0.860,0.860,0.860), gl_FragCoord.x / u_resolution.x);
+
+    stripes-park:
+        base: polygons
+        mix: [polygons-stripes]
+        shaders:
+            defines:
+                STRIPES_SCALE: 50
+                STRIPES_WIDTH: 0.9
+                STRIPES_ALPHA: 1.0
+                STRIPES_ANGLE: 0.2617993875
+            blocks:
+                filter: |
+                    color.rgb = mix(vec3(0.890,0.890,0.890), vec3(0.890,0.890,0.890), gl_FragCoord.x / u_resolution.x);
+
+    polygons-stripes:
+        doc:
+            author:
+                name: Patricio Gonzalez Vivo
+                twitter: patriciogv
+            version: 0.0.1
+            tangram-version: 0.0.7
+            licence: MIT
+            description: |
+                Apply stripe pattern to the polygon style. To learn more about patterns check [this chapter from the Book of Shaders](https://thebookofshaders.com/09/)
+        ui:
+            shaders:
+                defines:
+                    STRIPES_SCALE:
+                        type: number
+                        label: Scale
+                        range:
+                            min: 1.
+                            max: 1000.
+                            step: 1.
+                    STRIPES_WIDTH:
+                        type: number
+                        label: Width
+                        range:
+                            min: 0.
+                            max: 1.
+                            step: 0.01
+                    STRIPES_ALPHA:
+                        type: number
+                        label: Amount
+                        range:
+                            min: 0.
+                            max: 1.
+                            step: 0.01
+                    STRIPES_ANGLE:
+                        type: number
+                        label: Angle (radiants)
+                        range:
+                            min: 0.
+                            max: 3.1415
+                            step: 0.1
+        base: polygons
+        mix: [patterns-stripes, space-tile]
+        shaders:
+            defines:
+                STRIPES_WIDTH: .5
+                STRIPES_ALPHA: .5
+                STRIPES_SCALE: 2.
+                STRIPES_ANGLE: PI*0.25
+            blocks:
+                color: |
+                    color.a = stripes(  getTileCoords()*STRIPES_SCALE,
+                                        STRIPES_WIDTH,
+                                        STRIPES_ANGLE)*STRIPES_ALPHA;
+
+    patterns-stripes:
+        doc:
+            author:
+                name: Patricio Gonzalez Vivo
+                twitter: patriciogv
+            version: 0.0.1
+            tangram-version: 0.0.7
+            licence: MIT
+            description: |
+                Collection of functions to draw stripes. To learn more about patterns check [this chapter from the Book of Shaders](https://thebookofshaders.com/09/)
+            examples:
+                grain-area:
+                    url: https://tangrams.github.io/tangram-sandbox/styles/grain-area.yaml
+                    img: https://tangrams.github.io/tangram-sandbox/styles/grain-area.png
+                    lines: 26
+                press:
+                    url: https://tangrams.github.io/tangram-sandbox/styles/press.yaml
+                    img: https://tangrams.github.io/tangram-sandbox/styles/press.png
+                    lines: 150
+                radar:
+                    url: https://tangrams.github.io/tangram-sandbox/styles/radar.yaml
+                    img: https://tangrams.github.io/tangram-sandbox/styles/radar.png
+        mix: [functions-aastep, geometry-matrices]
+        shaders:
+            defines:
+                PI: 3.14159265358979323846
+            blocks:
+                global: |
+                    // Return a distance function of stripes
+                    float stripesDF (vec2 st) {
+                        return abs(sin(st.y*PI));
+                    }
+
+                    // Adjustable width stripes
+                    float stripes (vec2 st, float width) {
+                        return aastep(width, stripesDF(st));
+                    }
+
+                    // Adjustable Angle
+                    float stripes (vec2 st, float width, float angle) {
+                        st = rotate2D(angle) * st;
+                        return stripes(st, width);
+                    }
+
+                    // Faster optimisation of diagonal stripes
+                    float diagonalStripes (vec2 st) {
+                        vec2 i_st = floor(st);
+                        vec2 f_st = fract(st);
+                        if (mod(i_st.y,2.) - mod(i_st.x,2.) == 0.) {
+                            return 1.0 - aastep(f_st.x,f_st.y);
+                        } else {
+                            return aastep(f_st.x,f_st.y);
+                        }
+                    }
+
+                    // Faster optimisation of diagonal stripes with controlable width
+                    float diagonalStripes (vec2 st, float width) {
+                        st.y -= st.x;
+                        return stripes(st, width);
+                    }
+
+    block:
+        shaders:
+            defines:
+                ADD: '+'
+                SUBTRACT: '-'
+                MULTIPLY: '*'
+
+                PI: 3.1415926535897932384626433832795
+                TWO_PI: 6.2831853071795864769252867665590
+                HALF_PI: 1.5707963267948966192313216916398
+                QUATER_PI: .785398163
+
+                EPSILON: 0.0000001
+
+                deg2rad(d): (((d)*3.1415926535897932384626433832795)/180.0)
+                rad2deg(d): (((d)*180.0)/3.1415926535897932384626433832795)
+
+    space-tile:
+        doc:
+            author:
+                name: Patricio Gonzalez Vivo
+                twitter: patriciogv
+            version: 0.0.1
+            tangram-version: 0.0.7
+            licence: MIT
+            description: |
+                Get the position on the tile
+        test:
+            tile:
+                defines:
+                    v_pos: 'v_texcoord'
+                blocks:
+                    color: |
+                        vec2 st = getTileCoords();
+                        color.rg += fract(st*3.);
+        shaders:
+            blocks:
+                global: |
+                    // Variant to be add to both vertex and fragments shaders
+                    #ifndef v_pos
+                    varying vec3 v_pos;
+                    #endif
+
+                    //
+                    // Get the coordinates in tile space
+                    // ================================
+                    vec2 getTileCoords() {
+                        return fract(v_pos.xy);
+                    }
+
+                position: |
+                    // Normalize the attribute position of a vertex
+                    v_pos = modelPosition().xyz;
+
+    geometry-matrices:
+        mix: [block]
+        doc:
+            author:
+                name: Patricio Gonzalez Vivo
+                twitter: patriciogv
+            version: 0.0.1
+            tangram-version: 0.0.7
+            licence: MIT
+            description: |
+                Useful set of functions to construct scale, rotation and translation of 2, 3 or 4 dimensions. For more information about matrices read [this chapter from The Book of Shaders](http://thebookofshaders.com/08/)
+        shaders:
+            blocks:
+                global: |
+                    // Rotate in 2, 3 and 4 dimensions
+                    // ================================
+                    mat2 rotate2D (float angle) {
+                        return mat2(cos(angle),-sin(angle),
+                                    sin(angle),cos(angle));
+                    }
+                    #ifdef TANGRAM_FRAGMENT_SHADER
+                    vec2 rotate2D (vec2 st, float a) {
+                        return (rotate2D(a)*(st-.5))+.5;
+                    }
+                    #endif
+                    mat3 rotateX3D (float phi) {
+                        return mat3(
+                            vec3(1.,0.,0.),
+                            vec3(0.,cos(phi),-sin(phi)),
+                            vec3(0.,sin(phi),cos(phi)));
+                    }
+                    mat4 rotateX4D (float phi) {
+                        return mat4(
+                            vec4(1.,0.,0.,0),
+                            vec4(0.,cos(phi),-sin(phi),0.),
+                            vec4(0.,sin(phi),cos(phi),0.),
+                            vec4(0.,0.,0.,1.));
+                    }
+                    mat3 rotateY3D (float theta) {
+                        return mat3(
+                            vec3(cos(theta),0.,-sin(theta)),
+                            vec3(0.,1.,0.),
+                            vec3(sin(theta),0.,cos(theta)));
+                    }
+                    mat4 rotateY4D (float theta) {
+                        return mat4(
+                            vec4(cos(theta),0.,-sin(theta),0),
+                            vec4(0.,1.,0.,0.),
+                            vec4(sin(theta),0.,cos(theta),0.),
+                            vec4(0.,0.,0.,1.));
+                    }
+                    mat3 rotateZ3D (float psi) {
+                        return mat3(
+                            vec3(cos(psi),-sin(psi),0.),
+                            vec3(sin(psi),cos(psi),0.),
+                            vec3(0.,0.,1.));
+                    }
+                    mat4 rotateZ4D (float psi) {
+                        return mat4(
+                            vec4(cos(psi),-sin(psi),0.,0),
+                            vec4(sin(psi),cos(psi),0.,0.),
+                            vec4(0.,0.,1.,0.),
+                            vec4(0.,0.,0.,1.));
+                    }
+                    //
+                    // Scale 4 dimensions
+                    // ================================
+                    mat4 scale4D (float x, float y, float z) {
+                        return mat4(
+                            vec4(x,   0.0, 0.0, 0.0),
+                            vec4(0.0, y,   0.0, 0.0),
+                            vec4(0.0, 0.0, z,   0.0),
+                            vec4(0.0, 0.0, 0.0, 1.0)
+                        );
+                    }
+                    //
+                    // Translate in 4 dimensions
+                    mat4 translate4D (float x, float y, float z) {
+                        return mat4(
+                            vec4(1.0, 0.0, 0.0, 0.0),
+                            vec4(0.0, 1.0, 0.0, 0.0),
+                            vec4(0.0, 0.0, 1.0, 0.0),
+                            vec4(x,   y,   z,   1.0)
+                        );
+                    }
+
+    tiling-brick:
+        doc:
+            author:
+                name: Patricio Gonzalez Vivo
+                twitter: patriciogv
+            version: 0.0.1
+            tangram-version: 0.0.7
+            licence: MIT
+            description: |
+                Repeats a coordinate space (`vec2 st`) in diferent brick-like tiles N times (`float zoom`). For more information about tilling patterns read [this chapter of The Book of Shaders](https://thebookofshaders.com/09/)
+            examples:
+                nursery:
+                    url: https://tangrams.github.io/tangram-sandbox/styles/nursery.yaml
+                    img: https://tangrams.github.io/tangram-sandbox/styles/nursery.png
+                    lines: 99
+                patterns:
+                    url: https://tangrams.github.io/tangram-sandbox/styles/patterns.yaml
+                    img: https://tangrams.github.io/tangram-sandbox/styles/patterns.png
+                    lines: 130
+        test:
+            brick: { blocks: { color: "    color.rg += brick(v_texcoord.xy,5.);" } }
+        shaders:
+            blocks:
+                global: |
+                    vec2 brick (vec2 st, float zoom) {
+                        st *= zoom;
+                        // Here is where the offset is happening
+                        st.x += step(1., mod(st.y,2.0)) * 0.5;
+                        return fract(st);
+                    }
+
+    tiling-tile:
+        doc:
+            author:
+                name: Patricio Gonzalez Vivo
+                twitter: patriciogv
+            version: 0.0.1
+            tangram-version: 0.0.7
+            licence: MIT
+            description: |
+                Repeats a coordinate space (`vec2 st`) in diferent brick-like tiles N times (`float zoom`). For more information about tilling patterns read [this chapter of The Book of Shaders](https://thebookofshaders.com/09/)
+        test:
+            tile: { blocks: { color: "    color.rg += tile(v_texcoord.xy,5.);" } }
+        shaders:
+            blocks:
+                global: |
+                    // Repeats a coordinate space (st) in diferent tiles
+                    // ================================
+                    vec2 tile (vec2 st, float zoom) {
+                        st *= zoom;
+                        return fract(st);
+                    }
+
+    shapes-type:
+        doc:
+            author:
+                name: Patricio Gonzalez Vivo
+                twitter: patriciogv
+            version: 0.0.1
+            tangram-version: 0.0.7
+            licence: MIT
+            description: |
+                This block provides to functions `fill` and `stroke`. Each one transform a SDF to a fill shape or a stroke shape (border). The stroke width can be control with the define `STROKE`.
+                To learn more about how to make shapes on shaders go to From check [this chapter about shapes from the Book of Shaders](https://thebookofshaders.com/07/)
+        mix: [functions-aastep]
+        shaders:
+            defines:
+                STROKE: 0.15
+            blocks:
+                global: |
+                    float fill (in float size, in float x) {
+                        return 1.-aastep(size, x);
+                    }
+
+                    float stroke (in float size, in float x) {
+                        return aastep(size, x+STROKE*.5) - aastep(size, x-STROKE*.5);
+                    }
+
+    functions-zoom:
+        doc:
+            author:
+                name: Patricio Gonzalez Vivo
+                twitter: patriciogv
+            version: 0.0.1
+            tangram-version: 0.0.7
+            licence: MIT
+            description: |
+                when you mix this block to another block you can use the functions `zoom()` or `zoomEase()`. Both will help you to interpolate any values between the zooms `ZOOM_START` and `ZOOM_END`.
+                By default `zoom()` and `zoomEase()` will return a `float `number between 0 and 1. But you can change it to interpolate any thing! Like `floats`, `vec2`, `vec3`, `vec4` and even other functions! For that you just need to change de `defines`: `ZOOM_IN`, and `ZOOM_OUT` to what ever you want to interpolate.
+                `zoom()` use the cuadratic interpolation of `smoothstep()` but you can use `zoomEase()` to specify what type of **easing interpolation** you prefere. Just change the default `linear` function for any [easing functions describe here](#functions-easing) in the `ZOOM_FNC` define. Ex: `ZOOM_FNC: quadraticInOut`
+        mix: [functions-easing]
+        shaders:
+            defines:
+                ZOOM_START: 14.
+                ZOOM_END: 20.
+                ZOOM_MAX: max(ZOOM_START, ZOOM_END)
+                ZOOM_FNC: linear
+                ZOOM_IN: 0.0
+                ZOOM_OUT: 1.0
+            blocks:
+                global: |
+                    float zoom() {
+                        return mix( ZOOM_IN,
+                                    ZOOM_OUT,
+                                    clamp( smoothstep(  ZOOM_START/ZOOM_MAX,
+                                                        ZOOM_END/ZOOM_MAX,
+                                                        max(u_map_position.z/ZOOM_MAX, 0.)), 0., 1.) );
+                    }
+                    float zoomEase() {
+                        return mix( ZOOM_IN,
+                                    ZOOM_OUT,
+                                    ZOOM_FNC( (u_map_position.z-ZOOM_START)/(ZOOM_END-ZOOM_START) ) );
+                    }
+    functions-easing:
+        doc:
+            author:
+                name: StackGL
+                url: http://stack.gl/
+            version: 0.0.1
+            tangram-version: 0.0.7
+            licence: MIT
+            description: |
+                Easing functions originally develop by Robert Penner's and transformed to GLSL by [StackGL](http://stack.gl/) in this repo: <https://github.com/stackgl/glsl-easings>
+        shaders:
+            defines:
+                PI: 3.1415926535897932384626433832795
+                HALF_PI: 1.5707963267948966192313216916398
+            blocks:
+                global: |
+                    float linear (in float t) {
+                        return t;
+                    }
+                    float exponentialIn (in float t) {
+                        return t == 0.0 ? t : pow(2.0, 10.0 * (t - 1.0));
+                    }
+                    float exponentialOut (in float t) {
+                        return t == 1.0 ? t : 1.0 - pow(2.0, -10.0 * t);
+                    }
+                    float exponentialInOut (in float t) {
+                        return t == 0.0 || t == 1.0
+                        ? t
+                        : t < 0.5
+                            ? +0.5 * pow(2.0, (20.0 * t) - 10.0)
+                            : -0.5 * pow(2.0, 10.0 - (t * 20.0)) + 1.0;
+                    }
+                    float sineIn (in float t) {
+                        return sin((t - 1.0) * HALF_PI) + 1.0;
+                    }
+                    float sineOut (in float t) {
+                        return sin(t * HALF_PI);
+                    }
+                    float sineInOut (in float t) {
+                        return -0.5 * (cos(PI * t) - 1.0);
+                    }
+                    float qinticIn (in float t) {
+                        return pow(t, 5.0);
+                    }
+                    float qinticOut (in float t) {
+                        return 1.0 - (pow(t - 1.0, 5.0));
+                    }
+                    float qinticInOut (in float t) {
+                        return t < 0.5
+                            ? +16.0 * pow(t, 5.0)
+                            : -0.5 * pow(2.0 * t - 2.0, 5.0) + 1.0;
+                    }
+                    float quarticIn (in float t) {
+                        return pow(t, 4.0);
+                    }
+                    float quarticOut (in float t) {
+                        return pow(t - 1.0, 3.0) * (1.0 - t) + 1.0;
+                    }
+                    float quarticInOut (in float t) {
+                        return t < 0.5
+                            ? +8.0 * pow(t, 4.0)
+                            : -8.0 * pow(t - 1.0, 4.0) + 1.0;
+                    }
+                    float quadraticInOut (in float t) {
+                        float p = 2.0 * t * t;
+                        return t < 0.5 ? p : -p + (4.0 * t) - 1.0;
+                    }
+                    float quadraticIn (in float t) {
+                        return t * t;
+                    }
+                    float quadraticOut (in float t) {
+                        return -t * (t - 2.0);
+                    }
+                    float cubicIn (in float t) {
+                        return t * t * t;
+                    }
+                    float cubicOut (in float t) {
+                        float f = t - 1.0;
+                        return f * f * f + 1.0;
+                    }
+                    float cubicInOut (in float t) {
+                        return t < 0.5
+                            ? 4.0 * t * t * t
+                            : 0.5 * pow(2.0 * t - 2.0, 3.0) + 1.0;
+                    }
+                    float elasticIn (in float t) {
+                        return sin(13.0 * t * HALF_PI) * pow(2.0, 10.0 * (t - 1.0));
+                    }
+                    float elasticOut (in float t) {
+                        return sin(-13.0 * (t + 1.0) * HALF_PI) * pow(2.0, -10.0 * t) + 1.0;
+                    }
+                    float elasticInOut (in float t) {
+                        return t < 0.5
+                            ? 0.5 * sin(+13.0 * HALF_PI * 2.0 * t) * pow(2.0, 10.0 * (2.0 * t - 1.0))
+                            : 0.5 * sin(-13.0 * HALF_PI * ((2.0 * t - 1.0) + 1.0)) * pow(2.0, -10.0 * (2.0 * t - 1.0)) + 1.0;
+                    }
+                    float circularIn (in float t) {
+                        return 1.0 - sqrt(1.0 - t * t);
+                    }
+                    float circularOut (in float t) {
+                        return sqrt((2.0 - t) * t);
+                    }
+                    float circularInOut (in float t) {
+                        return t < 0.5
+                            ? 0.5 * (1.0 - sqrt(1.0 - 4.0 * t * t))
+                            : 0.5 * (sqrt((3.0 - 2.0 * t) * (2.0 * t - 1.0)) + 1.0);
+                    }
+                    float bounceOut (in float t) {
+                        const float a = 4.0 / 11.0;
+                        const float b = 8.0 / 11.0;
+                        const float c = 9.0 / 10.0;
+                        const float ca = 4356.0 / 361.0;
+                        const float cb = 35442.0 / 1805.0;
+                        const float cc = 16061.0 / 1805.0;
+                        float t2 = t * t;
+                        return t < a
+                        ? 7.5625 * t2
+                        : t < b
+                            ? 9.075 * t2 - 9.9 * t + 3.4
+                            : t < c
+                                ? ca * t2 - cb * t + cc
+                                : 10.8 * t * t - 20.52 * t + 10.72;
+                    }
+                    float bounceIn (in float t) {
+                        return 1.0 - bounceOut(1.0 - t);
+                    }
+                    float bounceInOut (in float t) {
+                        return t < 0.5
+                        ? 0.5 * (1.0 - bounceOut(1.0 - t * 2.0))
+                        : 0.5 * bounceOut(t * 2.0 - 1.0) + 0.5;
+                    }
+                    float backIn (in float t) {
+                        return pow(t, 3.0) - t * sin(t * PI);
+                    }
+                    float backOut (in float t) {
+                        float f = 1.0 - t;
+                        return 1.0 - (pow(f, 3.0) - f * sin(f * PI));
+                    }
+                    float backInOut (in float t) {
+                        float f = t < 0.5
+                        ? 2.0 * t
+                        : 1.0 - (2.0 * t - 1.0);
+                        float g = pow(f, 3.0) - f * sin(f * PI);
+                        return t < 0.5
+                        ? 0.5 * g
+                        : 0.5 * (1.0 - g) + 0.5;
+                    }
+
+    geometry-normal:
+        doc:
+            author:
+                name: Patricio Gonzalez Vivo
+                twitter: patriciogv
+            version: 0.0.1
+            tangram-version: 0.0.7
+            licence: MIT
+            description: |
+                Functions to detect if the surface is a wall (`bool isWall()`) or a roof ('bool isRoof()') based on the normals
+        shaders:
+            blocks:
+                global: |
+                    #ifdef TANGRAM_FRAGMENT_SHADER
+                    // Ask to the geometry normals if this surface is a Wall
+                    bool isWall () {
+                        return dot(vec3(0., 0., 1.), worldNormal()) < 1.0 - TANGRAM_EPSILON;
+                    }
+                    //
+                    // Ask to the geometry normals if this surface is a roof
+                    bool isRoof () {
+                        return !isWall();
+                    }
+                    #endif
+
+    functions-aastep:
+        doc:
+            author:
+                name: Matt DesLauriers
+                twitter: mattdesl
+            version: 0.0.1
+            tangram-version: 0.0.7
+            licence: MIT
+            description: |
+                AnitAliased ```step()``` function implemented by [Matt DesLauriers](https://twitter.com/mattdesl) in this module <https://github.com/stackgl/glsl-aastep>
+        shaders:
+            extensions: OES_standard_derivatives
+            blocks:
+                global: |
+                    // AntiAliased Step function
+                    //=============================
+                    float aastep(float threshold, float value) {
+                        #ifdef TANGRAM_FRAGMENT_SHADER
+                            #ifdef TANGRAM_EXTENSION_OES_standard_derivatives
+                                float afwidth = length(vec2(dFdx(value), dFdy(value))) * 0.70710678118654757;
+                                return smoothstep(threshold-afwidth, threshold+afwidth, value);
+                            #else
+                                return step(threshold, value);
+                            #endif
+                        #else
+                            return step(threshold, value);
+                        #endif
+                    }
