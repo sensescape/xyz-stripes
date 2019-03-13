@@ -3,6 +3,7 @@
 # Tangram Blocks
 # https://tangrams.github.io/blocks/
 # Patricio Gonzalez Vivo
+#
 
 cameras:
     camera1:
@@ -56,7 +57,7 @@ sources:
 
 layers:
     earth:
-        data: { source: mapzen, layer: earth }
+        data: { source: xyz-osm, layer: earth }
         draw:
             polygons:
                 style: stripes-earth
@@ -64,10 +65,10 @@ layers:
                 color: [0.000,0.498,0.831]
 
     water:
-        data: { source: mapzen, layer: water }
+        data: { source: xyz-osm, layer: water }
         draw:
             polygons:
-                style: grid-water
+                style: stripes-water
                 order: global.feature_order
                 color: [1.000,1.000,1.000]
 
@@ -164,237 +165,117 @@ layers:
                         color: [0.740,0.740,0.740]
                         width: 1px
 
-    roads:
-        data: { source: mapzen, layer: roads }
-        draw:
-            lines:
-                #color: black
-                width: 1px
-                order: global.feature_order
-                # but give them all the same outline
-                outline:
-                    order: 352
+    # roads:
+    #     data: { source: xyz-osm, layer: roads }
+    #     draw:
+    #         lines:
+    #             #color: black
+    #             width: 1px
+    #             order: global.feature_order
+    #             # but give them all the same outline
+    #             outline:
+    #                 order: 352
 
-        early:
-            filter: { $zoom: { max: 15 } }
-            draw:
-                lines:
-                    outline:
-                        order: global.feature_order
+    #     early:
+    #         filter: { $zoom: { max: 15 } }
+    #         draw:
+    #             lines:
+    #                 outline:
+    #                     order: global.feature_order
 
-        bridges-tunnels:
-            filter: { any: [is_bridge: true, is_tunnel: true] }
-            draw:
-                lines:
-                    # cap: butt
-                    outline:
-                        # except bridges and tunnels, their outlines should also self-sort
-                        order: global.feature_order
+    #     bridges-tunnels:
+    #         filter: { any: [is_bridge: true, is_tunnel: true] }
+    #         draw:
+    #             lines:
+    #                 # cap: butt
+    #                 outline:
+    #                     # except bridges and tunnels, their outlines should also self-sort
+    #                     order: global.feature_order
 
-        # default outlines starting at zoom 16
-        default-outline-width:
-            filter: { $zoom: { min: 16 } }
-            draw:
-                lines:
-                    outline:
-                        width: function () { return 3/16 * Math.log($zoom); }
+    #     # default outlines starting at zoom 16
+    #     default-outline-width:
+    #         filter: { $zoom: { min: 16 } }
+    #         draw:
+    #             lines:
+    #                 outline:
+    #                     width: function () { return 3/16 * Math.log($zoom); }
 
-        natural_earth_highways:
-            filter: { $zoom: { min: 5, max: 8 } }
-            draw:
-                lines:
-                    cap: round
-                    join: round
-                    color: [[5,[0.700,0.700,0.700]], [8,[1.000,1.000,1.000]]]
-                    width: [[9, 1px], [14, 2px], [16, 4px], [17, 10m]]
-            major_road:
-                filter: { kind: major_road }
-                draw:
-                    lines:
-                        color: [[5,[0.700,0.700,0.700]], [8,[1.000,1.000,1.000]]]
-                        width: [[5, 0.45px], [6, 0.75px]]
-            minor_road:
-                filter: { kind: minor_road }
-                draw:
-                    lines:
-                        color: [1.000,1.000,1.000]
-                        width: [[12, 1.0px], [14, 1.5px], [15, 3px], [16, 5m]]
-            ferry:
-                filter: { kind: ferry }
-                draw:
-                    lines:
-                        color: [0.900,0.900,0.900]
-                        width: 1px
+    #     natural_earth_highways:
+    #         filter: { $zoom: { min: 5, max: 8 } }
+    #         draw:
+    #             lines:
+    #                 cap: round
+    #                 join: round
+    #                 color: [[5,[0.700,0.700,0.700]], [8,[1.000,1.000,1.000]]]
+    #                 width: [[9, 1px], [14, 2px], [16, 4px], [17, 10m]]
+    #         major_road:
+    #             filter: { kind: major_road }
+    #             draw:
+    #                 lines:
+    #                     color: [[5,[0.700,0.700,0.700]], [8,[1.000,1.000,1.000]]]
+    #                     width: [[5, 0.45px], [6, 0.75px]]
+    #         minor_road:
+    #             filter: { kind: minor_road }
+    #             draw:
+    #                 lines:
+    #                     color: [1.000,1.000,1.000]
+    #                     width: [[12, 1.0px], [14, 1.5px], [15, 3px], [16, 5m]]
+    #         ferry:
+    #             filter: { kind: ferry }
+    #             draw:
+    #                 lines:
+    #                     color: [0.900,0.900,0.900]
+    #                     width: 1px
 
-        highway:
-            filter: { kind: highway, $zoom: { min: 8 } }
-            draw:
-                lines:
-                    color: [[5,[0.700,0.700,0.700]], [8,[1.000,1.000,1.000]]]
-                    width: [[5, 0px], [8, 1px], [14, 2px], [16, 6.5px], [17, 20m]]
-                    outline:
-                        color: [0.700,0.700,0.700]
-                        width: [[5, 0.5px], [8, 0.5px], [12, 1px]]
+    #     highway:
+    #         filter: { kind: highway, $zoom: { min: 8 } }
+    #         draw:
+    #             lines:
+    #                 color: [[5,[0.700,0.700,0.700]], [8,[1.000,1.000,1.000]]]
+    #                 width: [[5, 0px], [8, 1px], [14, 2px], [16, 6.5px], [17, 20m]]
+    #                 outline:
+    #                     color: [0.700,0.700,0.700]
+    #                     width: [[5, 0.5px], [8, 0.5px], [12, 1px]]
 
-            link:
-                filter: { is_link: true } # on- and off-ramps, etc
-                draw:
-                    lines:
-                        color: [1.000,1.000,1.000]
-                        width: [[9, 1px], [14, 2.5px], [16, 4px], [18, 9m]]
-                        cap: butt
-                        outline:
-                            color: [0.700,0.700,0.700]
-                            width: [[5, 0.5px], [12, 1px]]
-                early_link:
-                    filter: { $zoom: { max: 15 } }
-                    draw:
-                        lines:
-                            # except bridges and tunnels, their outlines should also self-sort
-                            order: 352
-                tunnel-link:
-                    filter: {is_tunnel: true, $zoom: {min: 13} }
-                    draw:
-                        lines:
-                            color: [1.000,1.000,1.000]
-                            outline:
-                                color: [0.700,0.700,0.700]
+    #         link:
+    #             filter: { is_link: true } # on- and off-ramps, etc
+    #             draw:
+    #                 lines:
+    #                     color: [1.000,1.000,1.000]
+    #                     width: [[9, 1px], [14, 2.5px], [16, 4px], [18, 9m]]
+    #                     cap: butt
+    #                     outline:
+    #                         color: [0.700,0.700,0.700]
+    #                         width: [[5, 0.5px], [12, 1px]]
+    #             early_link:
+    #                 filter: { $zoom: { max: 15 } }
+    #                 draw:
+    #                     lines:
+    #                         # except bridges and tunnels, their outlines should also self-sort
+    #                         order: 352
+    #             tunnel-link:
+    #                 filter: {is_tunnel: true, $zoom: {min: 13} }
+    #                 draw:
+    #                     lines:
+    #                         color: [1.000,1.000,1.000]
+    #                         outline:
+    #                             color: [0.700,0.700,0.700]
 
-            tunnel:
-                filter: {is_tunnel: true, $zoom: {min: 13} }
-                draw:
-                    lines:
-                        color: [1.000,1.000,1.000]
-                        outline:
-                            color: [0.700,0.700,0.700]
+    #         tunnel:
+    #             filter: {is_tunnel: true, $zoom: {min: 13} }
+    #             draw:
+    #                 lines:
+    #                     color: [1.000,1.000,1.000]
+    #                     outline:
+    #                         color: [0.700,0.700,0.700]
 
-            highway_bridge:
-                filter: {is_bridge: true}
-                draw:
-                    lines:
-                        cap: round
-                        outline:
-                            cap: butt
-
-    landuse:
-        data: { source: mapzen }
-        draw:
-            polygons:
-                order: global.feature_order
-                visible: false
-            lines:
-                order: global.feature_order
-                visible: false
-        # tier1:
-        national_park:
-            filter:
-                all:
-                    - kind: [national_park, battlefield, protected_area]
-                any:
-                    - not: { operator: [ "United States Forest Service" ] }
-                    - protect_class: ['2','3','5']
-            draw:
-                polygons:
-                    style: stripes-green
-                    color: [0.000,0.000,0.000]
-                    visible: true
-                lines:
-                    color: [0.820,0.820,0.820]
-                    width: 1px
-                    visible: true
-            us_national_park:
-                # yosemite national park, death valley national park, grand canyon national park
-                filter:
-                    any:
-                        - operator: [ "United States National Park Service" ]
-                        - protect_class: ['2','3','5']
-                draw:
-                    polygons:
-                        style: stripes-green
-                        color: [0.000,0.000,0.000]
-                        visible: true
-                    lines:
-                        color: [0.820,0.820,0.820]
-                        width: 1px
-                        visible: true
-
-
-        conservation:
-            filter:
-                $zoom: { min: 4 }
-                kind: [protected_area, nature_reserve, national_park]
-                not: { protect_class: ['2','3','5']}
-            draw:
-                polygons:
-                    style: stripes-green
-                    color: [0.000,0.000,0.000]
-                    visible: true
-                lines:
-                    color: [0.820,0.820,0.820]
-                    width: 1px
-                    visible: true
-
-        national_forest_level_6:
-            filter:
-                all:
-                    - kind: forest
-                any:
-                    - protect_class: ['6']
-                    - operator: ['United States Forest Service']
-            draw:
-                polygons:
-                    style: stripes-green
-                    color: [0.000,0.000,0.000]
-                    visible: true
-                lines:
-                    color: [0.820,0.820,0.820]
-                    width: 1px
-                    visible: true
-
-        forest-landcover:
-            filter: { kind: [forest, natural_forest, wood, natural_wood, natural_park], $zoom: { min: 10 }, not: { operator: "United States Forest Service" } }
-            draw:
-                polygons:
-                    style: stripes-green
-                    color: [0.000,0.000,0.000]
-                    visible: true
-                lines:
-                    color: [0.820,0.820,0.820]
-                    width: 1px
-                    visible: true
-
-        parks-and-national-forests-not-national-park:
-            filter:
-                all:
-                    - $zoom: { min: 4 }
-                    - kind: [park, national_park]
-                any:
-                    - not: { operator: [ "United States National Park Service", "United States Forest Service" ] }
-                    - not: { protect_class: ['2','3','5','6'] }
-            # default for national forests and more?
-            draw:
-                polygons:
-                    style: stripes-park
-                    color: [0.000,0.000,0.000]
-                    visible: true
-                lines:
-                    color: [0.820,0.820,0.820]
-                    width: 1px
-                    visible: true
-            national_park:
-                #filter: function() { return feature.name && (feature.name.indexOf('National Park') > -1); }
-                filter:
-                    all:
-                        - kind: national_park
-                        - not: [ protect_class: ['2','3','5','6'], operator: [ "United States National Park Service"] ]
-                draw:
-                    polygons:
-                        style: stripes-park
-                        visible: true
-                    lines:
-                        color: [0.820,0.820,0.820]
-                        width: 1px
-                        visible: true
+    #         highway_bridge:
+    #             filter: {is_bridge: true}
+    #             draw:
+    #                 lines:
+    #                     cap: round
+    #                     outline:
+    #                         cap: butt
 
         # major_road:
         #     filter: { kind: major_road }
@@ -700,51 +581,170 @@ layers:
         #                 outline:
         #                     color: global.hospital_r
 
-
-    buildings:
-        data: { source: mapzen, layer: buildings }
-        filter:
-            not: { location: underground }
+    landuse:
+        data: { source: xyz-osm }
         draw:
             polygons:
+                order: global.feature_order
                 visible: false
-                order: 329
-                color: [1.000,1.000,1.000]
             lines:
+                order: global.feature_order
                 visible: false
-                order: 329
-
-        footprints:
+        # tier1:
+        national_park:
             filter:
+                all:
+                    - kind: [national_park, battlefield, protected_area]
                 any:
-                    - { $zoom: [13], scale_rank: [1,2] }
-                    - { $zoom: [14], scale_rank: [1,2,3] }
-                    - { $zoom: [15], height: { min: 100 } }
-                    - { $zoom: [15], area: { min: 700 } }
-                    - { $zoom: [15], volume: { min: 100000 } }
-                    - { $zoom: [16], area: { min: 100 } }
-                    - { $zoom: [16], volume: { min: 50000 } }
-                    - { $zoom: { min: 17 }, area: true }
+                    - not: { operator: [ "United States Forest Service" ] }
+                    - protect_class: ['2','3','5']
             draw:
                 polygons:
+                    style: stripes-green
+                    color: [0.000,0.000,0.000]
                     visible: true
                 lines:
-                    visible: true
                     color: [0.820,0.820,0.820]
                     width: 1px
-
-            striped-buildings:
+                    visible: true
+            us_national_park:
+                # yosemite national park, death valley national park, grand canyon national park
                 filter:
-                    all:
-                        - any:
-                            - { $zoom: [16], area: { min: 100 } }
-                            - { $zoom: [16], volume: { min: 50000 } }
-                            - { $zoom: { min: 17 }, area: true }
+                    any:
+                        - operator: [ "United States National Park Service" ]
+                        - protect_class: ['2','3','5']
                 draw:
                     polygons:
-                        style: stripes-buildings
+                        style: stripes-green
+                        color: [0.000,0.000,0.000]
+                        visible: true
                     lines:
-                        color: [0.760,0.760,0.760]
+                        color: [0.820,0.820,0.820]
+                        width: 1px
+                        visible: true
+
+
+        conservation:
+            filter:
+                $zoom: { min: 4 }
+                kind: [protected_area, nature_reserve, national_park]
+                not: { protect_class: ['2','3','5']}
+            draw:
+                polygons:
+                    style: stripes-green
+                    color: [0.000,0.000,0.000]
+                    visible: true
+                lines:
+                    color: [0.820,0.820,0.820]
+                    width: 1px
+                    visible: true
+
+        national_forest_level_6:
+            filter:
+                all:
+                    - kind: forest
+                any:
+                    - protect_class: ['6']
+                    - operator: ['United States Forest Service']
+            draw:
+                polygons:
+                    style: stripes-green
+                    color: [0.000,0.000,0.000]
+                    visible: true
+                lines:
+                    color: [0.820,0.820,0.820]
+                    width: 1px
+                    visible: true
+
+        forest-landcover:
+            filter: { kind: [forest, natural_forest, wood, natural_wood, natural_park], $zoom: { min: 10 }, not: { operator: "United States Forest Service" } }
+            draw:
+                polygons:
+                    style: stripes-green
+                    color: [0.000,0.000,0.000]
+                    visible: true
+                lines:
+                    color: [0.820,0.820,0.820]
+                    width: 1px
+                    visible: true
+
+        parks-and-national-forests-not-national-park:
+            filter:
+                all:
+                    - $zoom: { min: 4 }
+                    - kind: [park, national_park]
+                any:
+                    - not: { operator: [ "United States National Park Service", "United States Forest Service" ] }
+                    - not: { protect_class: ['2','3','5','6'] }
+            # default for national forests and more?
+            draw:
+                polygons:
+                    style: stripes-park
+                    color: [0.000,0.000,0.000]
+                    visible: true
+                lines:
+                    color: [0.820,0.820,0.820]
+                    width: 1px
+                    visible: true
+            national_park:
+                #filter: function() { return feature.name && (feature.name.indexOf('National Park') > -1); }
+                filter:
+                    all:
+                        - kind: national_park
+                        - not: [ protect_class: ['2','3','5','6'], operator: [ "United States National Park Service"] ]
+                draw:
+                    polygons:
+                        style: stripes-park
+                        visible: true
+                    lines:
+                        color: [0.820,0.820,0.820]
+                        width: 1px
+                        visible: true
+
+    # buildings:
+    #     data: { source: xyz-osm, layer: buildings }
+    #     filter:
+    #         not: { location: underground }
+    #     draw:
+    #         polygons:
+    #             visible: false
+    #             order: 329
+    #             color: [1.000,1.000,1.000]
+    #         lines:
+    #             visible: false
+    #             order: 329
+
+    #     footprints:
+    #         filter:
+    #             any:
+    #                 - { $zoom: [13], scale_rank: [1,2] }
+    #                 - { $zoom: [14], scale_rank: [1,2,3] }
+    #                 - { $zoom: [15], height: { min: 100 } }
+    #                 - { $zoom: [15], area: { min: 700 } }
+    #                 - { $zoom: [15], volume: { min: 100000 } }
+    #                 - { $zoom: [16], area: { min: 100 } }
+    #                 - { $zoom: [16], volume: { min: 50000 } }
+    #                 - { $zoom: { min: 17 }, area: true }
+    #         draw:
+    #             polygons:
+    #                 visible: true
+    #             lines:
+    #                 visible: true
+    #                 color: [0.820,0.820,0.820]
+    #                 width: 1px
+
+    #         striped-buildings:
+    #             filter:
+    #                 all:
+    #                     - any:
+    #                         - { $zoom: [16], area: { min: 100 } }
+    #                         - { $zoom: [16], volume: { min: 50000 } }
+    #                         - { $zoom: { min: 17 }, area: true }
+    #             draw:
+    #                 polygons:
+    #                     style: stripes-buildings
+    #                 lines:
+    #                     color: [0.760,0.760,0.760]
 
 styles:
     tools-tilecoords:
@@ -789,7 +789,7 @@ styles:
             blocks:
                 filter: |
                     color.rgb = vec3(1.00,1.00,1.00);
-                    color.rgb = mix(color.rgb, vec3(0.790,0.790,0.790), TileGrid());
+                    color.rgb = mix(color.rgb, vec3(0.860,0.860,0.860), TileGrid());
 
     polygons_transparent:
         base: polygons
@@ -813,13 +813,26 @@ styles:
         mix: [polygons-stripes]
         shaders:
             defines:
-                STRIPES_SCALE: 50
+                STRIPES_SCALE: 45
                 STRIPES_WIDTH: 0.9
                 STRIPES_ALPHA: 1.0
                 STRIPES_ANGLE: 1.570796325
             blocks:
                 filter: |
-                    color.rgb = mix(vec3(0.860,0.860,0.860), vec3(0.860,0.860,0.860), gl_FragCoord.x / u_resolution.x);
+                    color.rgb = mix(vec3(0.900,0.900,0.900), vec3(0.900,0.900,0.900), gl_FragCoord.x / u_resolution.x);
+
+    stripes-water:
+        base: polygons
+        mix: [polygons-stripes]
+        shaders:
+            defines:
+                STRIPES_SCALE: 13
+                STRIPES_WIDTH: 0.99
+                STRIPES_ALPHA: 1.0
+                STRIPES_ANGLE: 3.14159265
+            blocks:
+                filter: |
+                    color.rgb = mix(vec3(0.820,0.820,0.820), vec3(0.820,0.820,0.820), gl_FragCoord.x / u_resolution.x);
 
     stripes-green:
         base: polygons
