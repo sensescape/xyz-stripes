@@ -57,7 +57,7 @@ sources:
 
 layers:
     earth:
-        data: { source: xyz-osm, layer: earth }
+        data: { source: mapzen, layer: earth }
         draw:
             polygons:
                 style: stripes-earth
@@ -65,7 +65,7 @@ layers:
                 color: [0.000,0.498,0.831]
 
     water:
-        data: { source: xyz-osm, layer: water }
+        data: { source: mapzen, layer: water }
         draw:
             polygons:
                 style: stripes-water
@@ -582,7 +582,7 @@ layers:
         #                     color: global.hospital_r
 
     landuse:
-        data: { source: xyz-osm }
+        data: { source: mapzen }
         draw:
             polygons:
                 order: global.feature_order
