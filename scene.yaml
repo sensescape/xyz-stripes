@@ -60,7 +60,7 @@ layers:
         data: { source: mapzen, layer: earth }
         draw:
             polygons:
-                style: stripes-earth2
+                style: stripes-earth
                 order: global.feature_order
                 color: [0.600,0.600,0.600]
 
@@ -123,8 +123,8 @@ layers:
                     - protect_class: ['2','3','5']
             draw:
                 polygons:
-                    style: stripes-green3
-                    color: [0.600,0.600,0.600]
+                    style: stripes-green-angle
+                    color: [0.500,0.500,0.500]
                     visible: true
             us_national_park:
                 # yosemite national park, death valley national park, grand canyon national park
@@ -134,8 +134,8 @@ layers:
                         - protect_class: ['2','3','5']
                 draw:
                     polygons:
-                        style: stripes-green3
-                        color: [0.700,0.700,0.700]
+                        style: stripes-green-angle
+                        color: [0.500,0.500,0.500]
                         visible: true
 
         conservation:
@@ -145,8 +145,8 @@ layers:
                 not: { protect_class: ['2','3','5']}
             draw:
                 polygons:
-                    style: stripes-green3
-                    color: [0.300,0.300,0.300]
+                    style: stripes-hatch
+                    color: [0.850,0.850,0.850]
                     visible: true
 
         national_forest_level_6:
@@ -158,7 +158,7 @@ layers:
                     - operator: ['United States Forest Service']
             draw:
                 polygons:
-                    style: stripes-green3
+                    style: stripes-green-angle
                     color: [0.400,0.400,0.400]
                     visible: true
 
@@ -166,8 +166,8 @@ layers:
             filter: { kind: [forest, natural_forest, wood, natural_wood, natural_park], $zoom: { min: 10 }, not: { operator: "United States Forest Service" } }
             draw:
                 polygons:
-                    style: hatch2
-                    color: [0.400,0.400,0.400]
+                    style: stripes-green-horizontal
+                    color: [0.500,0.500,0.500]
                     visible: true
 
         parks-and-national-forests-not-national-park:
@@ -182,7 +182,7 @@ layers:
             draw:
                 polygons:
                     style: diagonal-stripes-weave
-                    color: [0.920,0.920,0.920]
+                    color: [0.960,0.960,0.960]
                     visible: true
             national_park:
                 #filter: function() { return feature.name && (feature.name.indexOf('National Park') > -1); }
@@ -192,90 +192,40 @@ layers:
                         - not: [ protect_class: ['2','3','5','6'], operator: [ "United States National Park Service"] ]
                 draw:
                     polygons:
-                        style: stripes-park
+                        style: diagonal-stripes-weave
+                        color: [0.950,0.950,0.950]
                         visible: true
 
-    # buildings:
-    #     data: { source: xyz-osm, layer: buildings }
-    #     filter:
-    #         not: { location: underground }
-    #     draw:
-    #         polygons:
-    #             visible: false
-    #             order: 329
-    #             color: [1.000,1.000,1.000]
-    #         lines:
-    #             visible: false
-    #             order: 329
+    buildings:
+        data: { source: mapzen, layer: buildings }
+        filter:
+            not: { location: underground }
+        draw:
+            polygons:
+                visible: false
+                order: 329
+                color: [1.000,1.000,1.000]
+            lines:
+                visible: false
+                order: 329
 
-    #     footprints:
-    #         filter:
-    #             any:
-    #                 - { $zoom: [13], scale_rank: [1,2] }
-    #                 - { $zoom: [14], scale_rank: [1,2,3] }
-    #                 - { $zoom: [15], height: { min: 100 } }
-    #                 - { $zoom: [15], area: { min: 700 } }
-    #                 - { $zoom: [15], volume: { min: 100000 } }
-    #                 - { $zoom: [16], area: { min: 100 } }
-    #                 - { $zoom: [16], volume: { min: 50000 } }
-    #                 - { $zoom: { min: 17 }, area: true }
-    #         draw:
-    #             polygons:
-    #                 visible: true
-    #             lines:
-    #                 visible: true
-    #                 color: [0.820,0.820,0.820]
-    #                 width: 1px
-
-    #         striped-buildings:
-    #             filter:
-    #                 all:
-    #                     - any:
-    #                         - { $zoom: [16], area: { min: 100 } }
-    #                         - { $zoom: [16], volume: { min: 50000 } }
-    #                         - { $zoom: { min: 17 }, area: true }
-    #             draw:
-    #                 polygons:
-    #                     style: stripes-buildings
-    #                 lines:
-    #                     color: [0.760,0.760,0.760]
+        footprints:
+            filter:
+                any:
+                    - { $zoom: [13], scale_rank: [1,2] }
+                    - { $zoom: [14], scale_rank: [1,2,3] }
+                    - { $zoom: [15], height: { min: 100 } }
+                    - { $zoom: [15], area: { min: 700 } }
+                    - { $zoom: [15], volume: { min: 100000 } }
+                    - { $zoom: [16], area: { min: 100 } }
+                    - { $zoom: [16], volume: { min: 50000 } }
+                    - { $zoom: { min: 17 }, area: true }
+            draw:
+                polygons:
+                    style: stripes-buildings
+                    visible: true
 
 styles:
-    tools-tilecoords:
-        shaders:
-            blocks:
-                global: |
-                    // Varying to be added to both vertex and fragment shaders
-                    varying vec2 v_pos;
-                    #ifdef TANGRAM_FRAGMENT_SHADER
-                    vec2 TileCoords() {
-                        return fract(v_pos);
-                    }
-                    #endif
-                position: |
-                    v_pos = modelPosition().xy;
-    tools-grid:
-        mix: tools-tilecoords
-        shaders:
-            blocks:
-                global: |
-                    #ifdef TANGRAM_FRAGMENT_SHADER
-                    bool grid(vec2 st, float res, float press) {
-                        vec2 grid = fract(st * res);
-                        return (grid.x < res * press) || (grid.y < res * press);
-                    }
-                    float TileGrid(float res) {
-                        vec2 st = TileCoords() * 100. * res;
-                        float pct = 0.0;
-                        float press = 0.3 + (1.0 - fract(u_map_position.z)) * 0.1;
-                        if (grid(st, 0.1, press)) { pct += 0.5; }
-                        return pct;
-                    }
-                    float TileGrid() {
-                        return mix(TileGrid(1.), TileGrid(2.), fract(u_map_position.z));
-                    }
-                    #endif
-
     waves:
         base: polygons
         mix: [space-screen, pallete, patterns-stripes]
@@ -286,46 +236,7 @@ styles:
                     pos.y += sin(pos.x*30.)*.01;
                     color.rgb = mix(color.rgb,background,stripes(pos*100.,.2));
 
-    grid-water:
-        base: polygons
-        mix: [tools-grid]
-        shaders:
-            blocks:
-                filter: |
-                    color.rgb = vec3(1.00,1.00,1.00);
-                    color.rgb = mix(color.rgb, vec3(0.860,0.860,0.860), TileGrid());
-
-    polygons_transparent:
-        base: polygons
-        blend: overlay
-
-    stripes-buildings:
-        base: polygons
-        mix: [polygons-stripes]
-        shaders:
-            defines:
-                STRIPES_SCALE: 50
-                STRIPES_WIDTH: 0.7
-                STRIPES_ALPHA: 1.0
-                STRIPES_ANGLE: 0.7853981625
-            blocks:
-                filter: |
-                    color.rgb = mix(vec3(0.880,0.880,0.880), vec3(0.880,0.880,0.880), gl_FragCoord.x / u_resolution.x);
-
     stripes-earth:
-        base: polygons
-        mix: [polygons-stripes]
-        shaders:
-            defines:
-                STRIPES_SCALE: 45
-                STRIPES_WIDTH: 0.9
-                STRIPES_ALPHA: 1.0
-                STRIPES_ANGLE: 1.570796325
-            blocks:
-                filter: |
-                    color.rgb = mix(vec3(0.400,0.400,0.400), vec3(0.400,0.400,0.400), gl_FragCoord.x / u_resolution.x);
-
-    stripes-earth2:
         base: polygons
         mix: [functions-aastep, pallete, patterns-stripes, space-screen]
         shaders:
@@ -341,9 +252,10 @@ styles:
                                         STRIPES_WIDTH,
                                         STRIPES_ANGLE));
 
-    hatch2:
+    stripes-buildings:
         base: polygons
         mix: [functions-aastep, pallete, patterns-stripes, space-screen]
+        blend: inlay
         shaders:
             defines:
                 STRIPES_WIDTH: .5
@@ -353,7 +265,7 @@ styles:
             blocks:
                 color: |
                     vec2 st = getScreenNonStretchCoords();
-                    color.rgb = mix(color.rgb,vec3(0.950,0.950,0.950),stripes(st*180.,
+                    color = mix(color,vec4(0.),stripes(st*120.,
                                         STRIPES_WIDTH,
                                         STRIPES_ANGLE));
 
@@ -367,35 +279,34 @@ styles:
                 NUM_OCTAVES: 2
             blocks:
                 color: |
-                    color = mix(color,vec4(0.),diagonalStripes( getConstantCoords()*150.))*.5;
+                    color = mix(color,vec4(0.),diagonalStripes(getConstantCoords()*150.))*.5;
 
-    stripes-water:
+    stripes-hatch:
         base: polygons
-        mix: [polygons-stripes]
+        mix: [functions-aastep, pallete, patterns-stripes, space-screen]
+        shaders:
+            blocks:
+                color: |
+                    vec2 st = getScreenNonStretchCoords();
+                    color.rgb = mix(color.rgb,background,diagonalStripes(st*300.));
+
+    stripes-green-angle:
+        base: polygons
+        mix: [functions-aastep, pallete, patterns-stripes, space-screen]
         shaders:
             defines:
-                STRIPES_SCALE: 13
-                STRIPES_WIDTH: 0.99
-                STRIPES_ALPHA: 1.0
-                STRIPES_ANGLE: 3.14159265
+                STRIPES_WIDTH: 0.5
+                STRIPES_ALPHA: .5
+                STRIPES_SCALE: 2.
+                STRIPES_ANGLE: 0.2617993875
             blocks:
-                filter: |
-                    color.rgb = mix(vec3(0.820,0.820,0.820), vec3(0.820,0.820,0.820), gl_FragCoord.x / u_resolution.x);
+                color: |
+                    vec2 st = getScreenNonStretchCoords();
+                    color.rgb = mix(color.rgb,vec3(0.940,0.940,0.940),stripes(st*180.,
+                                        STRIPES_WIDTH,
+                                        STRIPES_ANGLE));
 
-    stripes-green:
-        base: polygons
-        mix: [polygons-stripes]
-        shaders:
-            defines:
-                STRIPES_SCALE: 50
-                STRIPES_WIDTH: 0.8
-                STRIPES_ALPHA: 1.0
-                STRIPES_ANGLE: 3.14159265
-            blocks:
-                filter: |
-                    color.rgb = mix(vec3(0.860,0.860,0.860), vec3(0.860,0.860,0.860), gl_FragCoord.x / u_resolution.x);
-
-    stripes-green3:
+    stripes-green-horizontal:
         base: polygons
         mix: [functions-aastep, pallete, patterns-stripes, space-screen]
         shaders:
@@ -407,31 +318,9 @@ styles:
             blocks:
                 color: |
                     vec2 st = getScreenNonStretchCoords();
-                    color.rgb = mix(color.rgb,vec3(0.950,0.950,0.950),stripes(st*200.,
+                    color.rgb = mix(color.rgb,vec3(0.950,0.950,0.950),stripes(st*180.,
                                         STRIPES_WIDTH,
                                         STRIPES_ANGLE));
-
-    stripes-park:
-        base: polygons
-        mix: [polygons-stripes]
-        shaders:
-            defines:
-                STRIPES_SCALE: 50
-                STRIPES_WIDTH: 0.9
-                STRIPES_ALPHA: 1.0
-                STRIPES_ANGLE: 0.2617993875
-            blocks:
-                filter: |
-                    color.rgb = mix(vec3(0.890,0.890,0.890), vec3(0.890,0.890,0.890), gl_FragCoord.x / u_resolution.x);
-
-    hatch:
-        base: polygons
-        mix: [functions-aastep, pallete, patterns-stripes, space-screen]
-        shaders:
-            blocks:
-                color: |
-                    vec2 st = getScreenNonStretchCoords();
-                    color.rgb = mix(color.rgb,background,diagonalStripes(st*300.));
 
     pallete:
         shaders:
@@ -1125,83 +1014,19 @@ styles:
                         );
                     }
 
-    tiling-brick:
-        doc:
-            author:
-                name: Patricio Gonzalez Vivo
-                twitter: patriciogv
-            version: 0.0.1
-            tangram-version: 0.0.7
-            licence: MIT
-            description: |
-                Repeats a coordinate space (`vec2 st`) in diferent brick-like tiles N times (`float zoom`). For more information about tilling patterns read [this chapter of The Book of Shaders](https://thebookofshaders.com/09/)
-            examples:
-                nursery:
-                    url: https://tangrams.github.io/tangram-sandbox/styles/nursery.yaml
-                    img: https://tangrams.github.io/tangram-sandbox/styles/nursery.png
-                    lines: 99
-                patterns:
-                    url: https://tangrams.github.io/tangram-sandbox/styles/patterns.yaml
-                    img: https://tangrams.github.io/tangram-sandbox/styles/patterns.png
-                    lines: 130
-        test:
-            brick: { blocks: { color: "    color.rg += brick(v_texcoord.xy,5.);" } }
+    tools-tilecoords:
         shaders:
             blocks:
                 global: |
-                    vec2 brick (vec2 st, float zoom) {
-                        st *= zoom;
-                        // Here is where the offset is happening
-                        st.x += step(1., mod(st.y,2.0)) * 0.5;
-                        return fract(st);
+                    // Varying to be added to both vertex and fragment shaders
+                    varying vec2 v_pos;
+                    #ifdef TANGRAM_FRAGMENT_SHADER
+                    vec2 TileCoords() {
+                        return fract(v_pos);
                     }
-
-    tiling-tile:
-        doc:
-            author:
-                name: Patricio Gonzalez Vivo
-                twitter: patriciogv
-            version: 0.0.1
-            tangram-version: 0.0.7
-            licence: MIT
-            description: |
-                Repeats a coordinate space (`vec2 st`) in diferent brick-like tiles N times (`float zoom`). For more information about tilling patterns read [this chapter of The Book of Shaders](https://thebookofshaders.com/09/)
-        test:
-            tile: { blocks: { color: "    color.rg += tile(v_texcoord.xy,5.);" } }
-        shaders:
-            blocks:
-                global: |
-                    // Repeats a coordinate space (st) in diferent tiles
-                    // ================================
-                    vec2 tile (vec2 st, float zoom) {
-                        st *= zoom;
-                        return fract(st);
-                    }
-
-    shapes-type:
-        doc:
-            author:
-                name: Patricio Gonzalez Vivo
-                twitter: patriciogv
-            version: 0.0.1
-            tangram-version: 0.0.7
-            licence: MIT
-            description: |
-                This block provides to functions `fill` and `stroke`. Each one transform a SDF to a fill shape or a stroke shape (border). The stroke width can be control with the define `STROKE`.
-                To learn more about how to make shapes on shaders go to From check [this chapter about shapes from the Book of Shaders](https://thebookofshaders.com/07/)
-        mix: [functions-aastep]
-        shaders:
-            defines:
-                STROKE: 0.15
-            blocks:
-                global: |
-                    float fill (in float size, in float x) {
-                        return 1.-aastep(size, x);
-                    }
-
-                    float stroke (in float size, in float x) {
-                        return aastep(size, x+STROKE*.5) - aastep(size, x-STROKE*.5);
-                    }
+                    #endif
+                position: |
+                    v_pos = modelPosition().xy;
 
     functions-zoom:
         doc:
