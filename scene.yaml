@@ -23,7 +23,7 @@ global:
 
 scene:
     background:
-        color: [1.000,1.000,1.000]
+        color: [0.950,0.950,0.950]
 
 sources:
     # mapzen:
@@ -70,7 +70,7 @@ layers:
             polygons:
                 style: waves
                 order: global.feature_order
-                color: [0.400,0.400,0.400]
+                color: [0.600,0.600,0.600]
 
         lakes:
             filter:
@@ -96,13 +96,111 @@ layers:
                     - { $zoom: { min: 15 } }
             draw:
                 polygons:
-                    color: [0.400,0.400,0.400]
+                    color: [0.600,0.600,0.600]
 
         other-water-areas:
             filter: { not: { kind: [ocean, lake, water, reservoir] }, $zoom: { min: 11 }, area: { min: 100 } }
             draw:
                 polygons:
-                    color: [0.400,0.400,0.400]
+                    color: [0.600,0.600,0.600]
+
+    roads:
+        data: { source: mapzen, layer: roads }
+        draw:
+            lines:
+                width: 1px
+                order: global.feature_order
+                outline:
+                    order: 352
+
+        early:
+            filter: { $zoom: { max: 15 } }
+            draw:
+                lines:
+                    outline:
+                        order: global.feature_order
+
+        bridges-tunnels:
+            filter: { any: [is_bridge: true, is_tunnel: true] }
+            draw:
+                lines:
+                    outline:
+                        order: global.feature_order
+
+        # default outlines starting at zoom 16
+        default-outline-width:
+            filter: { $zoom: { min: 16 } }
+            draw:
+                lines:
+                    outline:
+                        width: function () { return 3/16 * Math.log($zoom); }
+
+        natural_earth_highways:
+            filter: { $zoom: { min: 5, max: 8 } }
+            draw:
+                lines:
+                    cap: round
+                    join: round
+                    color: [1.000,1.000,1.000]
+                    width: 1px
+            major_road:
+                filter: { kind: major_road }
+                draw:
+                    lines:
+                        color: [1.000,1.000,1.000]
+                        width: 0.5px
+
+        highway:
+            filter: { kind: highway, $zoom: { min: 8 } }
+            draw:
+                lines:
+                    color: [1.000,1.000,1.000]
+                    width: [[5, 0px], [8, 0.25px], [17, 2px]]
+
+            link:
+                filter: { is_link: true } # on- and off-ramps, etc
+                draw:
+                    lines:
+                        color: [1.000,1.000,1.000]
+                        width: 0.5px
+                early_link:
+                    filter: { $zoom: { max: 15 } }
+                    draw:
+                        lines:
+                            order: 352
+                tunnel-link:
+                    filter: {is_tunnel: true, $zoom: {min: 13} }
+                    draw:
+                        lines:
+                            color: [0.680,0.680,0.680]
+
+            tunnel:
+                filter: {is_tunnel: true, $zoom: {min: 13} }
+                draw:
+                    lines:
+                        color: [0.680,0.680,0.680]
+
+            highway_bridge:
+                filter: {is_bridge: true}
+                draw:
+                    lines:
+                        cap: round
+                        outline:
+                            cap: butt
+
+        major_road:
+            filter: { kind: major_road, $zoom: { min: 13 } }
+            draw:
+                lines:
+                    color: [1.000,1.000,1.000]
+                    width: [[13,0px], [18,2px]]
+
+        minor_road:
+            filter: { kind: minor_road, not: { kind_detail: service }, $zoom: { min: 16 } }
+            draw:
+                lines:
+                    color: [1.000,1.000,1.000]
+                    width: [[16,0px], [18,1px]]
 
     landuse:
         data: { source: mapzen }
@@ -146,7 +244,8 @@ layers:
             draw:
                 polygons:
                     style: stripes-hatch
-                    color: [0.850,0.850,0.850]
+                    # color: [1.000,0.000,0.000]
+                    color: [0.750,0.750,0.750]
                     visible: true
 
         national_forest_level_6:
@@ -182,6 +281,7 @@ layers:
             draw:
                 polygons:
                     style: diagonal-stripes-weave
+                    # color: [1.000,0.000,0.000]
                     color: [0.960,0.960,0.960]
                     visible: true
             national_park:
@@ -279,7 +379,7 @@ styles:
                 NUM_OCTAVES: 2
             blocks:
                 color: |
-                    color = mix(color,vec4(0.),diagonalStripes(getConstantCoords()*150.))*.5;
+                    color = mix(color,vec4(0.),diagonalStripes(getConstantCoords()*150.))*.25;
 
     stripes-hatch:
         base: polygons
