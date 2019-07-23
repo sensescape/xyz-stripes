@@ -72,7 +72,7 @@ layers:
             polygons:
                 style: stripes-earth
                 order: global.feature_order
-                color: [0.600,0.600,0.600]
+                color: [0.500,0.500,0.500]
 
     water:
         data: { source: mapzen, layer: water }
@@ -501,6 +501,10 @@ layers:
                             size: [[9, 10px], [14, 11px], [15, 0px]]
 
 styles:
+    lines_transparent:
+        base: lines
+        blend: overlay
+
     text-blend-order:
         base: text
         blend_order: 1
@@ -521,30 +525,30 @@ styles:
         shaders:
             defines:
                 STRIPES_WIDTH: .5
-                STRIPES_ALPHA: .5
+                STRIPES_ALPHA: 1.0
                 STRIPES_SCALE: 2.
                 STRIPES_ANGLE: 1.570796325
             blocks:
                 color: |
                     vec2 st = getScreenNonStretchCoords();
-                    color.rgb = mix(color.rgb,vec3(0.950,0.950,0.950),stripes(st*180.,
+                    color.rgb = mix(color.rgb,vec3(1.000,1.000,1.000),stripes(st*200.,
                                         STRIPES_WIDTH,
                                         STRIPES_ANGLE));
 
     stripes-buildings:
         base: polygons
         mix: [functions-aastep, pallete, patterns-stripes, space-screen]
-        blend: inlay
+        blend: overlay
         shaders:
             defines:
                 STRIPES_WIDTH: .5
-                STRIPES_ALPHA: .5
+                STRIPES_ALPHA: 0.2
                 STRIPES_SCALE: 2.
                 STRIPES_ANGLE: 3.14159265
             blocks:
                 color: |
                     vec2 st = getScreenNonStretchCoords();
-                    color = mix(color,vec4(0.),stripes(st*120.,
+                    color = mix(color,vec4(0.0),stripes(st*120.,
                                         STRIPES_WIDTH,
                                         STRIPES_ANGLE));
 
