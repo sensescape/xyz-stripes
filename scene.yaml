@@ -130,13 +130,6 @@ layers:
                     outline:
                         order: global.feature_order
 
-        bridges-tunnels:
-            filter: { any: [is_bridge: true, is_tunnel: true] }
-            draw:
-                lines:
-                    outline:
-                        order: global.feature_order
-
         # default outlines starting at zoom 16
         default-outline-width:
             filter: { $zoom: { min: 16 } }
@@ -215,19 +208,6 @@ layers:
                     lines:
                         color: [1.000,1.000,1.000]
                         width: [[12, 0px], [13, 1px], [15, 3px], [17, 8px], [18, 10m]]
-                early:
-                    filter: { $zoom: { max: 16 } }
-                    draw:
-                        lines:
-                            order: 352
-                            outline:
-                                order: function() { return feature.sort_rank + 2; }
-                    primary:
-                        filter: { kind: [primary] }
-                        draw:
-                            lines:
-                                outline:
-                                    order: function() { return feature.sort_rank + 1; }
                 routes:
                     filter: { ref: true }
                     draw:
@@ -260,12 +240,12 @@ layers:
                         width: [[13,0px], [15,1px], [16,3px], [18, 6m]]
                         outline:
                             width: 0px
-                    tunnel:
-                        filter: {is_tunnel: true, $zoom: { min: 13 } }
-                        draw:
-                            lines:
-                                style: lines_transparent
-                                color: [0.650,0.650,0.650,0.5]
+                tunnel:
+                    filter: {is_tunnel: true, $zoom: { min: 13 } }
+                    draw:
+                        lines:
+                            style: lines_transparent
+                            color: [0.650,0.650,0.650,0.5]
 
 
             tertiary:
@@ -276,17 +256,17 @@ layers:
                         width: [[15,0px], [17,3px], [18, 3m]]
                         outline:
                             width: 0px
-                    tunnel:
-                        filter: { is_tunnel: true, $zoom: { min: 13 } }
-                        draw:
-                            lines:
-                                style: lines_transparent
-                                color: [0.650,0.650,0.650,0.5]
+                tunnel:
+                    filter: { is_tunnel: true, $zoom: { min: 13 } }
+                    draw:
+                        lines:
+                            style: lines_transparent
+                            color: [0.650,0.650,0.650,0.5]
                 link:
                     filter: { is_link: true } # on- and off-ramps, etc
                     draw:
                         lines:
-                            color: [0.650,0.650,0.650]
+                            color: [1.000,1.000,1.000]
 
         minor_road:
             filter: { kind: minor_road, not: { kind_detail: service }, $zoom: { min: 16 } }
@@ -664,11 +644,11 @@ styles:
                 STRIPES_WIDTH: 0.5
                 STRIPES_ALPHA: .5
                 STRIPES_SCALE: 2.
-                STRIPES_ANGLE: 0.2617993875
+                STRIPES_ANGLE: 0.7853981634
             blocks:
                 color: |
                     vec2 st = getScreenNonStretchCoords();
-                    color.rgb = mix(color.rgb,vec3(0.940,0.940,0.940),stripes(st*180.,
+                    color.rgb = mix(color.rgb,vec3(0.950,0.950,0.950),stripes(st*180.,
                                         STRIPES_WIDTH,
                                         STRIPES_ANGLE));
 
@@ -1576,31 +1556,6 @@ styles:
                         ? 0.5 * g
                         : 0.5 * (1.0 - g) + 0.5;
                     }
-
-    geometry-normal:
-        doc:
-            author:
-                name: Patricio Gonzalez Vivo
-                twitter: patriciogv
-            version: 0.0.1
-            tangram-version: 0.0.7
-            licence: MIT
-            description: |
-                Functions to detect if the surface is a wall (`bool isWall()`) or a roof ('bool isRoof()') based on the normals
-        shaders:
-            blocks:
-                global: |
-                    #ifdef TANGRAM_FRAGMENT_SHADER
-                    // Ask to the geometry normals if this surface is a Wall
-                    bool isWall () {
-                        return dot(vec3(0., 0., 1.), worldNormal()) < 1.0 - TANGRAM_EPSILON;
-                    }
-                    //
-                    // Ask to the geometry normals if this surface is a roof
-                    bool isRoof () {
-                        return !isWall();
-                    }
-                    #endif
 
     functions-aastep:
         doc:
