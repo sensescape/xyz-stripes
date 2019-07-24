@@ -276,6 +276,33 @@ layers:
                     color: [1.000,1.000,1.000]
                     width: [[17,0px], [18,3px]]
 
+        railway:
+            filter: { kind: rail, not: { kind_detail: [subway,light_rail,tram] } }
+            draw:
+                lines:
+                    dash: [2.0, 1.0]
+                    dash_background_color: [1.000,1.000,1.000]
+                    color: [0.100,0.100,0.100]
+                    width: [[13, 0px], [14, 0.5px], [18, 3px], [20, 4px]]
+                    # let roads sort themselves past zoom 14
+                    order: global.feature_order
+                    # but give them all the same outline
+                    outline:
+                        order: 354
+            bridges-tunnels:
+                filter: { any: [is_bridge: true, is_tunnel: true] }
+                draw:
+                    lines:
+                        outline:
+                            # except bridges and tunnels, their outlines should also self-sort
+                            order: function() { return feature.sort_rank || 305; }
+            service:
+                filter: { service: true }
+                draw:
+                    lines:
+                        color: [1.000,1.000,1.000]
+                        width: [[14,0px],[15,0.5px],[18,2px]]
+
     landuse:
         data: { source: mapzen }
         draw:
