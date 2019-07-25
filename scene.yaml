@@ -81,9 +81,10 @@ layers:
         data: { source: mapzen, layer: water }
         draw:
             polygons:
-                style: waves
+                # style: waves-black
+                style: waves-white
+                color: [0.700,0.700,0.700]
                 order: global.feature_order
-                color: [0.600,0.600,0.600]
 
         lakes:
             filter:
@@ -109,13 +110,13 @@ layers:
                     - { $zoom: { min: 15 } }
             draw:
                 polygons:
-                    color: [0.600,0.600,0.600]
+                    color: [0.700,0.700,0.700]
 
         other-water-areas:
             filter: { not: { kind: [ocean, lake, water, reservoir] }, $zoom: { min: 11 }, area: { min: 100 } }
             draw:
                 polygons:
-                    color: [0.600,0.600,0.600]
+                    color: [0.700,0.700,0.700]
 
     roads:
         data: { source: mapzen, layer: roads }
@@ -183,7 +184,7 @@ layers:
                         # style: lines_transparent
                         # color: [0.650,0.650,0.650,0.5]
                         style: lines-stripes
-                        color: [1.000,1.000,1.000]
+                        color: [0.950,0.950,0.950]
 
             highway_bridge:
                 filter: {is_bridge: true}
@@ -219,7 +220,7 @@ layers:
                                 # style: lines_transparent
                                 # color: [0.650,0.650,0.650,0.5]
                                 style: lines-stripes
-                                color: [1.000,1.000,1.000]
+                                color: [0.950,0.950,0.950]
             link:
                 filter: { is_link: true } # on- and off-ramps, etc
                 draw:
@@ -233,7 +234,7 @@ layers:
                         # style: lines_transparent
                         # color: [0.650,0.650,0.650,0.5]
                         style: lines-stripes
-                        color: [1.000,1.000,1.000]
+                        color: [0.950,0.950,0.950]
             secondary:
                 filter: { kind_detail: secondary }
                 draw:
@@ -249,7 +250,7 @@ layers:
                             # style: lines_transparent
                             # color: [0.650,0.650,0.650,0.5]
                             style: lines-stripes
-                            color: [1.000,1.000,1.000]
+                            color: [0.950,0.950,0.950]
 
 
             tertiary:
@@ -283,10 +284,10 @@ layers:
             filter: { kind: rail, not: { kind_detail: [subway,light_rail,tram] } }
             draw:
                 lines:
-                    dash: [2.0, 1.0]
+                    dash: [3.0, 1.5]
                     dash_background_color: [1.000,1.000,1.000]
                     color: [0.100,0.100,0.100]
-                    width: [[13, 0px], [14, 0.5px], [18, 3px], [20, 4px]]
+                    width: [[13, 0px], [14, 0.5px], [18, 2px], [20, 4px]]
                     # let roads sort themselves past zoom 14
                     order: global.feature_order
                     # but give them all the same outline
@@ -617,15 +618,25 @@ styles:
         base: text
         blend_order: 1
 
-    waves:
+    waves-black:
         base: polygons
-        mix: [space-screen, pallete, patterns-stripes]
+        mix: [space-screen, patterns-stripes]
         shaders:
             blocks:
                 color: |
                     vec2 pos = getScreenNonStretchCoords();
                     pos.y += sin(pos.x*30.)*.01;
-                    color.rgb = mix(color.rgb,background,stripes(pos*100.,.2));
+                    color.rgb = mix(color.rgb, vec3(0.000),stripes(pos*100.,.4));
+
+    waves-white:
+        base: polygons
+        mix: [space-screen, patterns-stripes]
+        shaders:
+            blocks:
+                color: |
+                    vec2 pos = getScreenNonStretchCoords();
+                    pos.y += sin(pos.x*30.)*.01;
+                    color.rgb = mix(color.rgb, vec3(0.950),stripes(pos*70.,.2));
 
     stripes-earth:
         base: polygons
