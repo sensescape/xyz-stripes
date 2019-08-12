@@ -8,14 +8,14 @@ View the [xyz stripes map](https://sensescape.github.io/xyz-stripes/#12/37.7784/
 
 ![LINES](https://raw.githubusercontent.com/sensescape/xyz-stripes/master/images/lines-title2.png)
 
-![STRIPES](https://raw.githubusercontent.com/sensescape/xyz-stripes/master/images/xyz-stripes-map2.png)
-[https://sensescape.github.io/xyz-stripes/#19/40.69222/-74.01219](https://sensescape.github.io/xyz-stripes/#19/40.69222/-74.01219)
-
 ![STRIPES](https://raw.githubusercontent.com/sensescape/xyz-stripes/master/images/xyz-stripes-map7.png)
 [https://sensescape.github.io/xyz-stripes/#18/22.27836/-245.83732](https://sensescape.github.io/xyz-stripes/#18/22.27836/-245.83732)
 
 ![STRIPES](https://raw.githubusercontent.com/sensescape/xyz-stripes/master/images/xyz-stripes-map6.png)
 [https://sensescape.github.io/xyz-stripes/#11/22.2829/-245.8329](https://sensescape.github.io/xyz-stripes/#11/22.2829/-245.8329)
+
+![STRIPES](https://raw.githubusercontent.com/sensescape/xyz-stripes/master/images/xyz-stripes-map2.png)
+[https://sensescape.github.io/xyz-stripes/#19/40.69222/-74.01219](https://sensescape.github.io/xyz-stripes/#19/40.69222/-74.01219)
 
 ### To run locally:
 
