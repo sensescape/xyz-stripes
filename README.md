@@ -6,6 +6,8 @@
 
 View the [xyz stripes map](https://sensescape.github.io/xyz-stripes/#12/37.7784/-122.4331).
 
+![LINES](https://raw.githubusercontent.com/sensescape/xyz-stripes/master/images/lines-title.png)
+
 ![STRIPES](https://raw.githubusercontent.com/sensescape/xyz-stripes/master/images/xyz-stripes-map2.png)
 [https://sensescape.github.io/xyz-stripes/#19/40.69222/-74.01219](https://sensescape.github.io/xyz-stripes/#19/40.69222/-74.01219)
 
