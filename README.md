@@ -6,6 +6,8 @@
 
 View the [xyz stripes map](https://sensescape.github.io/xyz-stripes/#12/37.7784/-122.4331).
 
+![STRIPES](https://raw.githubusercontent.com/sensescape/xyz-stripes/master/images/xyz-stripes-map1.png)
+
 ### To run locally:
 
 Download this repo, then start a web server in its directory:
