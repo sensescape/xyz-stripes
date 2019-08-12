@@ -1,4 +1,4 @@
-![GRAPHIC SERIES](https://raw.githubusercontent.com/sensescape/xyz-stripes/master/images/graphic_series_lines.jpg)
+![GRAPHIC SERIES](https://raw.githubusercontent.com/sensescape/xyz-stripes/master/images/graphic_series_lines2.jpg)
 
 
 
