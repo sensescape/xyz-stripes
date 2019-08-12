@@ -1,10 +1,10 @@
-# simple-demo
+![GRAPHIC SERIES](https://raw.githubusercontent.com/sensescape/xyz-stripes/master/images/graphic_series_lines.jpg)
 
-The simplest possible [Tangram](http://github.com/tangrams/tangram) setup.
 
-Live demo: http://tangrams.github.io/simple-demo/
 
-![tangram-demo screenshot](https://cloud.githubusercontent.com/assets/459970/6629470/c007b1de-c8e4-11e4-854e-fd69f5135b3a.png)
+
+
+View the [xyz stripes map](https://sensescape.github.io/xyz-stripes/#12/37.7784/-122.4331).
 
 ### To run locally:
 
