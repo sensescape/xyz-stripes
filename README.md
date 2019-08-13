@@ -14,8 +14,7 @@ View the [xyz stripes map](https://sensescape.github.io/xyz-stripes/#12/37.7784/
 ![STRIPES](https://raw.githubusercontent.com/sensescape/xyz-stripes/master/images/xyz-stripes-map6.png)
 [https://sensescape.github.io/xyz-stripes/#11/22.2829/-245.8329](https://sensescape.github.io/xyz-stripes/#11/22.2829/-245.8329)
 
-![STRIPES](https://raw.githubusercontent.com/sensescape/xyz-stripes/master/images/xyz-stripes-map2.png)
-[https://sensescape.github.io/xyz-stripes/#19/40.69222/-74.01219](https://sensescape.github.io/xyz-stripes/#19/40.69222/-74.01219)
+[https://explore.xyz.here.com](https://explore.xyz.here.com)
 
 ### To run locally:
 
