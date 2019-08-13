@@ -1,11 +1,5 @@
 ![GRAPHIC SERIES](https://raw.githubusercontent.com/sensescape/xyz-stripes/master/images/graphic_series_lines4.jpg)
 
-
-
-
-
-View the [xyz stripes map](https://sensescape.github.io/xyz-stripes/#12/37.7784/-122.4331).
-
 ![LINES](https://raw.githubusercontent.com/sensescape/xyz-stripes/master/images/lines-title3.png)
 
 ![STRIPES](https://raw.githubusercontent.com/sensescape/xyz-stripes/master/images/xyz-stripes-map7.png)
