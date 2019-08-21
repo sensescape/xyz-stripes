@@ -835,7 +835,7 @@ layers:
             polygons:
                 visible: false
                 order: 329
-                color: [0.300,0.300,0.300]
+                color: [0.350,0.350,0.350]
             lines:
                 visible: false
                 order: 329
