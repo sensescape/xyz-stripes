@@ -37,7 +37,7 @@ global:
     offwhite_color:               [0.955,0.955,0.955]
     white_color:                  [0.950,0.950,0.950]
 
-    roads_text_fill:              [0.250,0.250,0.250]
+    roads_text_fill:              [0.150,0.150,0.150]
     roads_text_stroke:            [0.980,0.980,0.980]
 
     ux_language_text_source: |
