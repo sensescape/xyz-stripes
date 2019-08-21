@@ -835,7 +835,7 @@ layers:
             polygons:
                 visible: false
                 order: 329
-                color: [1.000,1.000,1.000]
+                color: [0.300,0.300,0.300]
             lines:
                 visible: false
                 order: 329
@@ -1277,17 +1277,17 @@ styles:
     stripes-buildings:
         base: polygons
         mix: [functions-aastep, pallete, patterns-stripes, space-screen]
-        blend: overlay
+        # blend: overlay
         shaders:
             defines:
-                STRIPES_WIDTH: .55
-                STRIPES_ALPHA: 0.2
+                STRIPES_WIDTH: .5
+                STRIPES_ALPHA: 1.0
                 STRIPES_SCALE: 2.
-                STRIPES_ANGLE: 3.14159265
+                STRIPES_ANGLE: 1.570796325
             blocks:
                 color: |
                     vec2 st = getScreenNonStretchCoords();
-                    color = mix(color,vec4(0.0),stripes(st*120.,
+                    color.rgb = mix(color.rgb,vec3(0.940),stripes(st*200.,
                                         STRIPES_WIDTH,
                                         STRIPES_ANGLE));
 
