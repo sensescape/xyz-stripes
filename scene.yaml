@@ -1287,7 +1287,7 @@ styles:
             blocks:
                 color: |
                     vec2 st = getScreenNonStretchCoords();
-                    color.rgb = mix(color.rgb,vec3(0.940),stripes(st*200.,
+                    color.rgb = mix(color.rgb,vec3(0.930),stripes(st*200.,
                                         STRIPES_WIDTH,
                                         STRIPES_ANGLE));
 
