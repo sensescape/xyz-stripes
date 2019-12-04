@@ -20,7 +20,7 @@ global:
     # https://mapzen.com/documentation/overview/#developer-accounts-and-api-keys
     sdk_api_key: '3eqm2_bfTNGZ85ar20fVyA'     # set this value to your Mapzen API key
 
-    text_font_family: 'Orbitron'
+    text_font_family: 'Open Sans'
 
     building_extrude_height: |                  # building extrude height logic
         function() { return feature.height || 70; }
@@ -193,6 +193,22 @@ fonts:
           # url: https://fonts.gstatic.com/s/aldrich/v6/VWXaIPGrUapL_Y2vGs0lKALUuEpTyoUstqEm5AMlJo4.woff
           url: fonts/VWXaIPGrUapL_Y2vGs0lKALUuEpTyoUstqEm5AMlJo4.woff
 
+    Open Sans:
+        - weight: 300 # Light
+          url: fonts/OpenSans-Light.woff
+        - weight: normal # Regular
+          url: fonts/OpenSans-Regular.woff
+        - weight: normal # Regular
+          style: italic
+          url: fonts/OpenSans-Italic.woff
+        - weight: 600 # Semi Bold
+          url: fonts/OpenSans-Semibold.woff
+        - weight: 600 # Semi Bold
+          style: italic
+          url: fonts/OpenSans-SemiboldItalic.woff
+        - weight: bold
+          url: fonts/OpenSans-Bold.woff
+
 
 
 scene:
@@ -292,7 +308,7 @@ layers:
                 text_source: global.ux_language_text_source
                 visible: false    # labels are enabled by each layer below
                 font:
-                    family: Cairo
+                    family: global.text_font_family
                     weight: normal
                     fill: global.roads_text_fill
 
@@ -406,7 +422,7 @@ layers:
                         text_source: global.ux_language_text_source
                         visible: true
                         font:
-                            family: Aldrich
+                            weight: 600
                             size: [[15,12px],[20,14px]]
                             stroke: { color: global.roads_text_stroke, width: 6px }
 
@@ -472,7 +488,7 @@ layers:
                                 visible: true
                                 text_source: global.ux_language_text_source_road_ref_and_name
                                 font:
-                                    family: Aldrich
+                                    weight: 600
                                     size: [[15,12px],[20,14px]]
                                     stroke: { color: global.roads_text_stroke, width: 4px }
                 labels-trunk-primary-z14:
@@ -559,6 +575,7 @@ layers:
                                 visible: true
                                 text_source: global.ux_language_text_source_road_ref_and_name_short
                                 font:
+                                    weight: 600
                                     size: [[13,10px],[15,13px],[18,14px]]
                                     stroke: { color: global.roads_text_stroke, width: 4px }
                 labels-secondary:
