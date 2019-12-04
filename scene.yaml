@@ -236,14 +236,14 @@ layers:
             polygons:
                 style: stripes-earth
                 order: global.feature_order
-                color: [0.790,0.790,0.790]
+                color: [0.850,0.850,0.850]
 
     water:
         data: { source: mapzen, layer: water }
         draw:
             polygons:
                 style: stripes-water
-                color: [0.850,0.850,0.850]
+                color: [0.950,0.940,0.940]
                 order: global.feature_order
 
         lakes:
@@ -270,13 +270,13 @@ layers:
                     - { $zoom: { min: 15 } }
             draw:
                 polygons:
-                    color: [0.850,0.850,0.850]
+                    color: [0.950,0.940,0.940]
 
         other-water-areas:
             filter: { not: { kind: [ocean, lake, water, reservoir] }, $zoom: { min: 11 }, area: { min: 100 } }
             draw:
                 polygons:
-                    color: [0.850,0.850,0.850]
+                    color: [0.950,0.940,0.940]
 
     roads:
         data: { source: mapzen, layer: roads }
@@ -851,7 +851,7 @@ layers:
             draw:
                 polygons:
                     style: zigzag-green
-                    color: [0.790,0.790,0.790]
+                    color: [0.840,0.840,0.840]
                     visible: true
             us_national_park:
                 # yosemite national park, death valley national park, grand canyon national park
@@ -862,7 +862,7 @@ layers:
                 draw:
                     polygons:
                         style: zigzag-green
-                        color: [0.785,0.785,0.785]
+                        color: [0.840,0.840,0.840]
                         visible: true
 
         conservation:
@@ -873,7 +873,7 @@ layers:
             draw:
                 polygons:
                     style: zigzag-green
-                    color: [0.800,0.800,0.800]
+                    color: [0.840,0.840,0.840]
                     visible: true
 
         national_forest_level_6:
@@ -886,7 +886,7 @@ layers:
             draw:
                 polygons:
                     style: zigzag-green
-                    color: [0.795,0.795,0.795]
+                    color: [0.840,0.840,0.840]
                     visible: true
 
         forest-landcover:
@@ -894,7 +894,7 @@ layers:
             draw:
                 polygons:
                     style: zigzag-green
-                    color: [0.810,0.810,0.810]
+                    color: [0.840,0.840,0.840]
                     visible: true
 
         parks-and-national-forests-not-national-park:
@@ -909,7 +909,7 @@ layers:
             draw:
                 polygons:
                     style: zigzag-green
-                    color: [0.800,0.800,0.800]
+                    color: [0.840,0.840,0.840]
                     visible: true
             national_park:
                 #filter: function() { return feature.name && (feature.name.indexOf('National Park') > -1); }
@@ -920,7 +920,7 @@ layers:
                 draw:
                     polygons:
                         style: zigzag-green
-                        color: [0.805,0.805,0.805]
+                        color: [0.840,0.840,0.840]
                         visible: true
 
     buildings:
@@ -931,7 +931,7 @@ layers:
             polygons:
                 visible: false
                 order: 329
-                color: [0.690,0.690,0.690]
+                color: [0.760,0.760,0.760]
             lines:
                 visible: false
                 order: 329
@@ -1511,14 +1511,14 @@ styles:
         mix: [functions-aastep, patterns-stripes, space-screen]
         shaders:
             defines:
-                STRIPES_WIDTH: .5
+                STRIPES_WIDTH: .7
                 STRIPES_ALPHA: 1.0
                 STRIPES_SCALE: 2.
                 STRIPES_ANGLE: 3.14159265
             blocks:
                 color: |
                     vec2 st = getScreenNonStretchCoords();
-                    color.rgb = mix(color.rgb,vec3(0.970),stripes(st*170.,
+                    color.rgb = mix(color.rgb,vec3(0.955),stripes(st*55.,
                                         STRIPES_WIDTH,
                                         STRIPES_ANGLE));
 
@@ -1534,7 +1534,7 @@ styles:
             blocks:
                 color: |
                     vec2 st = getScreenNonStretchCoords();
-                    color.rgb = mix(color.rgb,vec3(0.930),stripes(st*170.,
+                    color.rgb = mix(color.rgb,vec3(0.880),stripes(st*55.,
                                         STRIPES_WIDTH,
                                         STRIPES_ANGLE));
 
@@ -1566,7 +1566,7 @@ styles:
             blocks:
                 color: |
                     vec2 st = getScreenNonStretchCoords();
-                    color.rgb = mix(color.rgb,vec3(0.900),stripes(st*170.,
+                    color.rgb = mix(color.rgb,vec3(0.785),stripes(st*55.,
                                         STRIPES_WIDTH,
                                         STRIPES_ANGLE));
 
@@ -1575,14 +1575,14 @@ styles:
         mix: [functions-aastep, patterns-zigzag, space-screen]
         shaders:
             defines:
-                ZIGZAG_WIDTH: .8
+                ZIGZAG_WIDTH: .85
                 ZIGZAG_ALPHA: 1.0
-                ZIGZAG_SCALE: 2.
-                ZIGZAG_FREQ: 0.5
+                ZIGZAG_SCALE: 1.
+                ZIGZAG_FREQ: 0.75
             blocks:
                 color: |
                     vec2 st = getScreenNonStretchCoords();
-                    color.rgb = mix(color.rgb,vec3(0.930),zigzag(st*170.,
+                    color.rgb = mix(color.rgb,vec3(0.875),zigzag(st*95.,
                                         ZIGZAG_FREQ,
                                         ZIGZAG_WIDTH));
 
