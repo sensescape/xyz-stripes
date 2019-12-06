@@ -252,14 +252,14 @@ layers:
             polygons:
                 style: stripes-earth
                 order: global.feature_order
-                color: [0.850,0.850,0.850]
+                color: [0.840,0.840,0.840]
 
     water:
         data: { source: mapzen, layer: water }
         draw:
             polygons:
                 style: stripes-water
-                color: [0.950,0.940,0.940]
+                color: [0.940,0.940,0.940]
                 order: global.feature_order
 
         lakes:
@@ -286,13 +286,13 @@ layers:
                     - { $zoom: { min: 15 } }
             draw:
                 polygons:
-                    color: [0.950,0.940,0.940]
+                    color: [0.940,0.940,0.940]
 
         other-water-areas:
             filter: { not: { kind: [ocean, lake, water, reservoir] }, $zoom: { min: 11 }, area: { min: 100 } }
             draw:
                 polygons:
-                    color: [0.950,0.940,0.940]
+                    color: [0.940,0.940,0.940]
 
     roads:
         data: { source: mapzen, layer: roads }
@@ -1535,7 +1535,7 @@ styles:
             blocks:
                 color: |
                     vec2 st = getScreenNonStretchCoords();
-                    color.rgb = mix(color.rgb,vec3(0.955),stripes(st*55.,
+                    color.rgb = mix(color.rgb,vec3(0.955),stripes(st*95.,
                                         STRIPES_WIDTH,
                                         STRIPES_ANGLE));
 
@@ -1551,7 +1551,7 @@ styles:
             blocks:
                 color: |
                     vec2 st = getScreenNonStretchCoords();
-                    color.rgb = mix(color.rgb,vec3(0.880),stripes(st*55.,
+                    color.rgb = mix(color.rgb,vec3(0.880),stripes(st*95.,
                                         STRIPES_WIDTH,
                                         STRIPES_ANGLE));
 
@@ -1583,7 +1583,7 @@ styles:
             blocks:
                 color: |
                     vec2 st = getScreenNonStretchCoords();
-                    color.rgb = mix(color.rgb,vec3(0.785),stripes(st*55.,
+                    color.rgb = mix(color.rgb,vec3(0.785),stripes(st*95.,
                                         STRIPES_WIDTH,
                                         STRIPES_ANGLE));
 
